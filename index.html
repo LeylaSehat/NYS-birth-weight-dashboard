@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYS Birth Weight Outcomes Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:  #3B2EA3;
+  --gold:  #6D5DF6;
+  --lblue: #5B6FF5;
+  --org:   #9B5DE5;
+  --green: #7C6FF2;
+  --gray:  #6E6A86;
+  --glite: #F6F4FF;
+  --gmid:  #DDD7F7;
+  --card:  #FFFFFF;
+  /* region palette */
+  --hv:  #6B5BFF;
+  --cny: #d9e1e2;
+  --li:  #A78BFA;
+  --nyc: #9333EA;
+  --wny: #312E81;
+}
+body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#F8F6FF 0%,#F1EEFF 100%);color:var(--blue);min-height:100vh;}
+
+/* BANNER */
+.banner{background:#2F2A8C;color:#fff;padding:8px 30px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(47,42,140,.18);}
+.seal{width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.65rem;color:var(--blue);flex-shrink:0;}
+.btext .agency{font-size:.85rem;font-weight:700;}
+.btext .div{font-size:.68rem;opacity:.8;}
+
+/* MAIN */
+.wrap{padding:22px 30px;}
+
+/* HEADER */
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:3px solid #7C6FF2;}
+.htitle h1{font-size:1.75rem;font-weight:800;line-height:1.1;letter-spacing:-.02em;}
+.htitle p{font-size:.7rem;color:var(--gray);margin-top:4px;line-height:1.4;white-space:nowrap;}
+.ctrl{display:flex;align-items:center;gap:12px;}
+.ctrl label{font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);}
+select.yr{font-family:'Inter',sans-serif;font-size:1.35rem;font-weight:800;padding:10px 44px 10px 18px;
+  border:2.5px solid #6D5DF6;border-radius:10px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 7 6-7' stroke='%23003366' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;
+  appearance:none;color:var(--blue);cursor:pointer;outline:none;box-shadow:0 2px 8px rgba(109,93,246,.15);}
+
+/* LEGEND */
+.leg{display:flex;align-items:center;gap:16px;background:#fff;border-radius:10px;padding:10px 16px;margin-bottom:16px;box-shadow:0 8px 22px rgba(91,84,180,.09);flex-wrap:wrap;}
+.leg-title{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);white-space:nowrap;}
+.leg-items{display:flex;flex-wrap:wrap;gap:5px 14px;}
+.li{display:flex;align-items:center;gap:5px;font-size:.73rem;font-weight:500;}
+.ls{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.leg-hint{margin-left:auto;font-size:.68rem;color:var(--gray);display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.ring-icon{width:22px;height:22px;border-radius:50%;border:2px solid var(--gmid);display:flex;align-items:center;justify-content:center;}
+.ring-inner{width:11px;height:11px;border-radius:50%;background:var(--gmid);}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;}
+
+/* CARD */
+.card{background:var(--card);border-radius:14px;padding:18px 16px 14px;box-shadow:0 10px 28px rgba(91,84,180,.12);
+  display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.c-norm::before{background:#5B6FF5;}
+.c-low::before {background:#7C6FF2;}
+.c-vlow::before{background:#B06CFF;}
+
+.card-hdr{width:100%;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.card-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);}
+.card-sub{font-size:.6rem;color:var(--gray);margin-top:2px;}
+.yoy{font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+.y-good{background:#EEF9F4;color:#157A4A;}
+.y-bad {background:#FEF3EC;color:#C0450A;}
+.y-neu {background:#EEF2FF;color:#4338CA;}
+
+/* DONUT */
+.dw{position:relative;width:210px;height:210px;margin:4px auto 6px;}
+.dw canvas{position:absolute;top:0;left:0;}
+.dc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.dcv{font-size:1.8rem;font-weight:800;color:var(--blue);line-height:1;}
+.dcl{font-size:.6rem;color:var(--gray);margin-top:3px;font-weight:500;text-align:center;max-width:72px;line-height:1.3;}
+.ring-note{font-size:.62rem;color:var(--gray);margin-top:2px;display:flex;gap:12px;}
+.rn{display:flex;align-items:center;gap:3px;}
+
+/* TREND */
+.trsec{width:100%;margin-top:8px;}
+.tr-title{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);margin-bottom:3px;}
+.trwrap{height:48px;width:100%;}
+.trwrap canvas{width:100%!important;height:100%!important;}
+.tr-axis{display:flex;justify-content:space-between;font-size:.58rem;color:var(--gray);margin-top:1px;}
+
+/* TOOLTIP */
+#tip{
+  position:fixed;background:#2F2A8C;color:#fff;border-radius:8px;
+  padding:10px 14px;font-size:.72rem;pointer-events:none;opacity:0;
+  transition:opacity .1s;z-index:9999;min-width:220px;max-width:300px;
+  line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.3);}
+#tip.on{opacity:1;}
+#tip .tn{font-weight:700;font-size:.82rem;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:4px;margin-bottom:4px;}
+#tip .tp{font-size:1.2rem;font-weight:800;color:#C9C3FF;}
+#tip .ts{font-size:.65rem;color:#E1DEFF;}
+#tip .tr{font-size:.66rem;color:#F1EFFF;margin-top:3px;}
+#tip .row{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(255,255,255,.08);padding:2px 0;}
+#tip .row span:first-child{color:#E1DEFF;}
+#tip .row span:last-child{font-weight:700;color:#fff;text-align:right;}
+
+
+
+
+
+
+/* SANKEY DIAGRAM */
+.sankey-panel{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:16px;box-shadow:0 10px 28px rgba(91,84,180,.12);border:1px solid rgba(124,111,242,.14);}
+.sankey-head{margin-bottom:12px;border-bottom:1px solid rgba(124,111,242,.14);padding-bottom:12px;}
+.sankey-head h3{font-size:.92rem;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:4px;}
+.sankey-head p{font-size:.68rem;color:var(--gray);line-height:1.5;max-width:820px;}
+.sankey-body{display:grid;grid-template-columns:230px 1fr;gap:18px;align-items:start;}
+.sankey-sidebar{}
+.sankey-sidebar-section{background:#F8F6FF;border-radius:10px;padding:12px 14px;border:1px solid rgba(124,111,242,.14);}
+.sankey-sidebar-title{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);margin-bottom:10px;}
+.sankey-region-bar-row{margin-bottom:8px;}
+.sankey-region-bar-label{display:flex;justify-content:space-between;font-size:.67rem;font-weight:600;color:var(--blue);margin-bottom:3px;}
+.sankey-region-bar-label span:last-child{font-weight:800;}
+.sankey-region-bar-bg{height:9px;background:#E8E4F8;border-radius:999px;overflow:hidden;}
+.sankey-region-bar-fill{height:100%;border-radius:999px;}
+.sankey-rules{display:flex;flex-direction:column;gap:7px;}
+.sankey-rule{font-size:.63rem;color:var(--blue);line-height:1.45;display:flex;gap:6px;align-items:flex-start;}
+.sankey-rule-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:2px;}
+.sankey-rule-note{font-size:.58rem;color:var(--gray);line-height:1.4;margin-top:4px;font-style:italic;}
+.sankey-svg{width:100%;height:480px;border-radius:12px;background:#FBFAFF;border:1px solid rgba(124,111,242,.12);display:block;}
+.sankey-foot{margin-top:8px;font-size:.62rem;color:var(--gray);}
+.sk-node{cursor:default;}
+.sk-link{fill:none;transition:stroke-opacity .15s;}
+.sk-link:hover{stroke-opacity:0.72 !important;}
+.sk-label{font-family:'Inter',sans-serif;font-weight:700;fill:#2F2A8C;pointer-events:none;}
+.sk-value{font-family:'Inter',sans-serif;font-weight:500;fill:#6E6A86;pointer-events:none;}
+.sk-perf-label{font-family:'Inter',sans-serif;font-size:10px;font-weight:800;pointer-events:none;}
+@media(max-width:900px){.sankey-body{grid-template-columns:1fr}.sankey-svg{height:380px}}
+
+/* THREE REGION MAPS PANEL */
+.region-map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.region-map-card{background:#fff;border-radius:12px;padding:12px;border:1px solid rgba(124,111,242,.16);box-shadow:0 8px 24px rgba(91,84,180,.10);}
+.region-map-card h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:4px;}
+.region-map-card p{font-size:.58rem;color:var(--gray);margin-bottom:6px;}
+.region-mini-map{width:100%;height:230px;border-radius:10px;background:#F8F6FF;border:1px solid rgba(124,111,242,.18);}
+.region-shape{stroke:#fff;stroke-width:3;cursor:pointer;transition:opacity .12s,stroke-width .12s;}
+.region-shape:hover{opacity:.88;stroke:#3B2EA3;stroke-width:4;}
+.region-label{font-size:11px;font-weight:800;fill:#2F2A8C;pointer-events:none;}
+.region-rate-label{font-size:10px;font-weight:700;fill:#6E6A86;pointer-events:none;}
+@media(max-width:1100px){.region-map-grid{grid-template-columns:1fr}.region-mini-map{height:220px}}
+
+/* MINI COUNTY MAPS UNDER DONUTS */
+.mini-map-box{width:100%;margin-top:12px;padding-top:10px;border-top:1px solid rgba(124,111,242,.18);}
+.mini-map-title{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);margin-bottom:4px;}
+.mini-map{width:100%;height:260px;border-radius:10px;background:#F8F6FF;border:1px solid rgba(124,111,242,.18);}
+.mini-county{stroke:#fff;stroke-width:.7;cursor:pointer;transition:opacity .12s,stroke-width .12s;}
+.mini-county:hover{opacity:.88;stroke:#3B2EA3;stroke-width:1.8;}
+.mini-map-note{font-size:.55rem;color:var(--gray);margin-top:3px;text-align:center;}
+@media(max-width:1100px){.mini-map{height:210px}}
+
+/* REAL NY COUNTY MAP */
+.map-panel{background:#fff;border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 10px 28px rgba(91,84,180,.12);}
+.map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:10px;}
+.map-head h3{font-size:.92rem;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:4px;}
+.map-head p{font-size:.68rem;color:var(--gray);line-height:1.45;}
+.map-ctrl{display:flex;align-items:center;gap:8px;white-space:nowrap;}
+.map-ctrl label{font-size:.62rem;font-weight:800;text-transform:uppercase;color:var(--gray);letter-spacing:.06em;}
+.map-ctrl select{font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;padding:5px 22px 5px 8px;border:1.5px solid #6D5DF6;border-radius:6px;color:var(--blue);background:#fff;}
+.map-wrap{display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:center;}
+.region-map{width:100%;height:360px;border-radius:12px;background:#F8FAFC;border:1px solid #E5E7EB;}
+.county-shape{stroke:#fff;stroke-width:.8;cursor:pointer;transition:opacity .12s,stroke-width .12s;}
+.county-shape:hover{opacity:.88;stroke:#3B2EA3;stroke-width:2;}
+.map-table{font-size:.68rem;}
+.map-note{font-size:.62rem;color:var(--gray);margin-top:8px;line-height:1.4;}
+.map-status{font-size:.78rem;fill:#6B7280;font-weight:700;}
+.map-legend{font-size:.62rem;color:var(--gray);display:flex;gap:8px;align-items:center;margin-top:8px;}
+.grad{height:10px;width:110px;border-radius:999px;background:linear-gradient(90deg,#F0EEFF,#5B6FF5);}
+@media(max-width:900px){.map-wrap{grid-template-columns:1fr}.region-map{height:300px}}
+
+/* ANALYTIC PANELS */
+.analytics-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:0 0 16px;}
+.region-card{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(91,84,180,.10);border-top:4px solid var(--blue);}
+.region-card .rname{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:6px;}
+.region-card .rval{font-size:1.2rem;font-weight:800;color:var(--blue);}
+.region-card .rmeta{font-size:.63rem;color:var(--gray);line-height:1.5;margin-top:4px;}
+.panel-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:16px;}
+.panel{background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 10px 28px rgba(91,84,180,.12);}
+.panel h3{font-size:.86rem;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:4px;}
+.panel p{font-size:.68rem;color:var(--gray);line-height:1.45;margin-bottom:10px;}
+.data-table{width:100%;border-collapse:collapse;font-size:.68rem;}
+.data-table th{text-align:left;color:var(--gray);font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gmid);padding:6px 5px;}
+.data-table td{border-bottom:1px solid #EEF2F7;padding:6px 5px;color:var(--blue);}
+.data-table td.num{text-align:right;font-variant-numeric:tabular-nums;}
+.flag{display:inline-block;border-radius:999px;padding:2px 7px;font-size:.58rem;font-weight:800;}
+.flag-high{background:#FEE2E2;color:#991B1B;}
+.flag-mod{background:#FEF3C7;color:#92400E;}
+.flag-near{background:#E0F2FE;color:#075985;}
+.trend-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.findings{background:#fff;border-left:6px solid var(--green);border-radius:12px;padding:14px 18px;margin-bottom:16px;box-shadow:0 8px 24px rgba(91,84,180,.10);}
+.findings h3{margin:0 0 8px 0;color:var(--blue);font-size:.92rem;}
+.findings ul{margin-left:18px;font-size:.78rem;line-height:1.65;color:#1F2937;}
+.method{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:16px;box-shadow:0 8px 24px rgba(91,84,180,.10);font-size:.68rem;color:var(--gray);line-height:1.5;}
+@media(max-width:1100px){.analytics-grid{grid-template-columns:repeat(2,1fr)}.panel-grid{grid-template-columns:1fr}.trend-wrap{grid-template-columns:1fr}}
+
+/* FOOTER */
+.foot{font-size:.62rem;color:var(--gray);display:flex;justify-content:space-between;
+  padding-top:10px;border-top:1px solid var(--gmid);}
+
+/* DONUT PURPLE THEME REFINEMENT */
+.dw{filter:drop-shadow(0 8px 18px rgba(80,70,180,.12));}
+.card{border:1px solid rgba(124,111,242,.16);}
+.region-card{border:1px solid rgba(124,111,242,.14);}
+.panel,.findings,.method,.leg{border:1px solid rgba(124,111,242,.14);}
+
+
+
+
+
+/* DIVERGING BAR CHART — replaces regional maps */
+.divbar-panel{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:16px;box-shadow:0 10px 28px rgba(91,84,180,.12);border:1px solid rgba(124,111,242,.14);}
+.divbar-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px;border-bottom:1px solid rgba(124,111,242,.14);padding-bottom:12px;flex-wrap:wrap;}
+.divbar-head h3{font-size:.92rem;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:4px;}
+.divbar-head p{font-size:.68rem;color:var(--gray);line-height:1.5;max-width:680px;}
+.divbar-legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.67rem;}
+.db-leg-item{display:flex;align-items:center;gap:5px;font-weight:600;color:var(--blue);}
+.db-leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.divbar-toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+.divbar-toggle-label{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--gray);}
+.divbar-toggles{display:flex;gap:6px;}
+.dbt{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;padding:5px 12px;border-radius:20px;
+  border:2px solid var(--mc);background:#fff;color:var(--blue);cursor:pointer;transition:all .15s;}
+.dbt.active{background:var(--mc);color:#fff;}
+.dbt:hover:not(.active){background:color-mix(in srgb,var(--mc) 12%,#fff);}
+.divbar-hint-row{font-size:.78rem;font-weight:500;color:var(--gray);margin-bottom:12px;padding-left:2px;}
+.divbar-svg{width:100%;height:340px;display:block;overflow:visible;}
+.divbar-foot{font-size:.62rem;color:var(--gray);margin-top:6px;}
+.db-bar{cursor:pointer;transition:opacity .12s;}
+.db-bar:hover{opacity:.82;}
+.db-zero{stroke:#3B2EA3;stroke-width:1.5;stroke-dasharray:4,3;opacity:.35;}
+.db-axis-label{font-family:'Inter',sans-serif;font-size:10px;fill:#6E6A86;}
+.db-region-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;fill:#2F2A8C;}
+.db-val-label{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:600;}
+.db-good-zone{fill:#EEF9F4;opacity:.45;}
+.db-bad-zone{fill:#FEF3EC;opacity:.45;}
+@media(max-width:900px){.divbar-svg{height:280px}}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+</head>
+<body>
+
+<div class="banner">
+  <div class="seal">NYS</div>
+  <div class="btext">
+    <div class="agency">Portfolio Project: NYS Birth Weight Outcomes Dashboard</div>
+    <div class="div">NYS Vital Statistics Data ,Division of Epidemiology | Educational Analytics Edition</div>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="hdr">
+  <div class="htitle">
+    <h1>NYS Infant Health<br>Birth Weight Outcomes Dashboard <span style="font-size:.72rem;background:#EAE6FF;color:#5B4BD6;border-radius:999px;padding:6px 10px;vertical-align:middle;margin-left:6px;">Training Edition</span></h1>
+    <p>Live birth outcomes by county and region, 2008 to 2023.
+       <strong>Outer ring = County & Inner ring = Region</strong>. Hover over any county or region slice for rate, counts, and share of NYS totals. Donut colors use a purple region-based hierarchy.</p>
+       
+  </div>
+  <div class="ctrl">
+    <label>Year</label>
+    <select class="yr" id="yrSel"></select>
+  </div>
+</div>
+
+<div class="leg">
+  <span class="leg-title">Regions</span>
+  <div class="leg-items" id="legItems"></div>
+  <div class="leg-hint">
+    <div class="ring-icon"><div class="ring-inner"></div></div>
+    Outer = County &nbsp;·&nbsp; Inner = Region
+  </div>
+</div>
+
+
+<div style="background:#ffffff;border-left:6px solid #7C6FF2;padding:14px 18px;margin-bottom:16px;border-radius:10px;box-shadow:0 8px 24px rgba(91,84,180,.10);">
+<h3 style="margin:0 0 8px 0;color:#3B2EA3;">Dashboard Purpose</h3>
+<ul style="margin-left:18px;font-size:.85rem;line-height:1.8;">
+<li>Identify counties and regions performing above or below the NYS statewide average.</li>
+<li>Monitor low birth weight and very low birth weight trends from 2008 to 2023.</li>
+<li>Trace birth weight flows from category to region to performance band using the Sankey diagram.</li>
+<li>Compare regional deviation from NYS averages across all three birth weight metrics using the diverging bar chart.</li>
+<li>Flag high-risk counties by LBW rate and track improvement or worsening since 2008.</li>
+<li>Support public health planning and program targeting using interactive county-level trend data.</li>
+</ul>
+</div>
+
+<div id="scopePanel" style="background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:16px;box-shadow:0 8px 22px rgba(91,84,180,.09);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+  <div style="font-size:.75rem;color:#3B2EA3;"><strong>Trend Scope:</strong> <span id="scopeLabel">Statewide</span><span style="color:#6B7280;"> · Click any county slice to view county-specific trends. Hover over trend dots for year and rate.</span></div>
+  <button id="resetScope" style="font-family:Inter,sans-serif;border:1px solid #D1D5DB;background:#F9FAFB;color:#3B2EA3;border-radius:7px;padding:6px 10px;font-size:.7rem;font-weight:700;cursor:pointer;">Reset to Statewide</button>
+</div>
+
+<div class="grid">
+
+  <!-- NORMAL -->
+  <div class="card c-norm">
+    <div class="card-hdr">
+      <div><div class="card-title">Normal Birth Weight</div><div class="card-sub">≥ 2,500 grams</div></div>
+      <div class="yoy y-neu" id="yn">—</div>
+    </div>
+    <div class="dw">
+      <canvas id="on" width="210" height="210"></canvas>
+      <canvas id="in" width="210" height="210"></canvas>
+      <div class="dc"><div class="dcv" id="vn">—%</div><div class="dcl">NYS Avg<br>Normal BW</div></div>
+    </div>
+    <div class="ring-note">
+      <div class="rn"><div class="ring-icon" style="width:18px;height:18px"><div class="ring-inner" style="width:9px;height:9px"></div></div><span>Region (inner)</span></div>
+      <div class="rn"><div class="ring-icon" style="width:24px;height:24px"></div><span>County (outer)</span></div>
+    </div>
+    <div class="trsec">
+      <div class="tr-title" id="trn-title">Statewide trend 2008–2023</div>
+      <div class="trwrap"><canvas id="trn"></canvas></div>
+      <div class="tr-axis"><span id="trn-l"></span><span id="trn-r"></span></div>
+    </div>
+    <div class="mini-map-box"><div class="mini-map-title">County Map · Normal Birth Weight</div><svg class="mini-map" id="miniMapN" viewBox="0 0 520 290"></svg><div class="mini-map-note">Darker county = higher normal birth weight %</div></div>
+  </div>
+
+  <!-- LOW -->
+  <div class="card c-low">
+    <div class="card-hdr">
+      <div><div class="card-title">Low Birth Weight</div><div class="card-sub">1,500 – 2,499 grams</div></div>
+      <div class="yoy y-neu" id="yl">—</div>
+    </div>
+    <div class="dw">
+      <canvas id="ol" width="210" height="210"></canvas>
+      <canvas id="il" width="210" height="210"></canvas>
+      <div class="dc"><div class="dcv" id="vl">—%</div><div class="dcl">NYS Avg<br>Low BW</div></div>
+    </div>
+    <div class="ring-note">
+      <div class="rn"><div class="ring-icon" style="width:18px;height:18px"><div class="ring-inner" style="width:9px;height:9px"></div></div><span>Region (inner)</span></div>
+      <div class="rn"><div class="ring-icon" style="width:24px;height:24px"></div><span>County (outer)</span></div>
+    </div>
+    <div class="trsec">
+      <div class="tr-title" id="trl-title">Statewide trend 2008–2023</div>
+      <div class="trwrap"><canvas id="trl"></canvas></div>
+      <div class="tr-axis"><span id="trl-l"></span><span id="trl-r"></span></div>
+    </div>
+    <div class="mini-map-box"><div class="mini-map-title">County Map · Low Birth Weight</div><svg class="mini-map" id="miniMapL" viewBox="0 0 520 290"></svg><div class="mini-map-note">Darker county = higher low birth weight %</div></div>
+  </div>
+
+  <!-- VLOW -->
+  <div class="card c-vlow">
+    <div class="card-hdr">
+      <div><div class="card-title">Very Low Birth Weight</div><div class="card-sub">&lt; 1,500 grams</div></div>
+      <div class="yoy y-neu" id="yv">—</div>
+    </div>
+    <div class="dw">
+      <canvas id="ov" width="210" height="210"></canvas>
+      <canvas id="iv" width="210" height="210"></canvas>
+      <div class="dc"><div class="dcv" id="vv">—%</div><div class="dcl">NYS Avg<br>Very Low BW</div></div>
+    </div>
+    <div class="ring-note">
+      <div class="rn"><div class="ring-icon" style="width:18px;height:18px"><div class="ring-inner" style="width:9px;height:9px"></div></div><span>Region (inner)</span></div>
+      <div class="rn"><div class="ring-icon" style="width:24px;height:24px"></div><span>County (outer)</span></div>
+    </div>
+    <div class="trsec">
+      <div class="tr-title" id="trv-title">Statewide trend 2008–2023</div>
+      <div class="trwrap"><canvas id="trv"></canvas></div>
+      <div class="tr-axis"><span id="trv-l"></span><span id="trv-r"></span></div>
+    </div>
+    <div class="mini-map-box"><div class="mini-map-title">County Map · Very Low Birth Weight</div><svg class="mini-map" id="miniMapV" viewBox="0 0 520 290"></svg><div class="mini-map-note">Darker county = higher very low birth weight %</div></div>
+  </div>
+
+</div>
+
+
+
+
+
+<div class="sankey-panel">
+  <div class="sankey-head">
+    <div>
+      <h3>Birth Weight Category → Region → Performance Band</h3>
+      <p>Sankey diagram showing how live births flow from birth weight categories to NYS regions and then to performance bands for the selected year. Performance bands compare each region with the statewide average.</p>
+    </div>
+  </div>
+  <div class="sankey-body">
+    <!-- Left sidebar -->
+    <div class="sankey-sidebar">
+      <div class="sankey-sidebar-section">
+        <div class="sankey-sidebar-title">Regional Summary</div>
+        <div id="sankeyRegionBars"></div>
+      </div>
+      <div class="sankey-sidebar-section" style="margin-top:16px;">
+        <div class="sankey-sidebar-title">Performance Band Rules</div>
+        <div class="sankey-rules">
+          <div class="sankey-rule"><span class="sankey-rule-dot" style="background:#157A4A"></span><strong>Better:</strong> better than NYS average by at least 0.30 percentage points.</div>
+          <div class="sankey-rule"><span class="sankey-rule-dot" style="background:#4338CA"></span><strong>Similar:</strong> within ±0.30 percentage points of NYS average.</div>
+          <div class="sankey-rule"><span class="sankey-rule-dot" style="background:#C0450A"></span><strong>Worse:</strong> worse than NYS average by at least 0.30 percentage points.</div>
+          <div class="sankey-rule-note">For Normal Birth Weight, higher is better. For Low and Very Low Birth Weight, lower is better.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Sankey SVG -->
+    <svg class="sankey-svg" id="sankeyDiagram" role="img" aria-label="Sankey diagram birth weight category to region to performance band"></svg>
+  </div>
+  <div class="sankey-foot">
+    <span id="sankeyFootNote"></span>
+  </div>
+</div>
+
+<div class="divbar-panel">
+  <div class="divbar-head">
+    <div>
+      <h3>Regional Performance vs. NYS Average</h3>
+      <p>Diverging bars show each region's deviation (in percentage points) from the statewide average for the selected year. Bars extending <strong>right = above NYS avg</strong> · bars extending <strong>left = below NYS avg</strong>. Direction of "good" differs by metric.</p>
+    </div>
+    <div class="divbar-legend" id="divbarLegend"></div>
+  </div>
+  <div class="divbar-toggle-row">
+    <span class="divbar-toggle-label">Show metric:</span>
+    <div class="divbar-toggles" id="divbarToggles">
+      <button class="dbt active" data-metric="pN" style="--mc:#5B6FF5">Normal BW</button>
+      <button class="dbt active" data-metric="pL" style="--mc:#7C6FF2">Low BW</button>
+      <button class="dbt active" data-metric="pV" style="--mc:#9333EA">Very Low BW</button>
+    </div>
+  </div>
+  <div class="divbar-hint-row">Hover bars for detail · click metric buttons to show/hide</div>
+  <svg class="divbar-svg" id="divbarChart" role="img" aria-label="Diverging bar chart regional performance vs NYS average"></svg>
+  <div class="divbar-foot" id="divbarFoot"></div>
+</div>
+
+
+<div id="regionalCards" class="analytics-grid"></div>
+
+<div class="panel-grid">
+  <div class="panel">
+    <h3>High-Risk Counties</h3>
+    <p>Counties with low birth weight rates above the statewide average for the selected year.</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>County</th><th>Region</th><th>LBW %</th><th>NYS Avg</th><th>Diff.</th><th>Risk Flag</th>
+        </tr>
+      </thead>
+      <tbody id="riskTable"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h3>Change Since 2008</h3>
+    <p>Change in low birth weight rate from 2008 to the selected year. Negative values indicate improvement.</p>
+    <div class="trend-wrap">
+      <div>
+        <table class="data-table">
+          <thead><tr><th colspan="3">Most Improved</th></tr><tr><th>County</th><th>Region</th><th>Change</th></tr></thead>
+          <tbody id="improvedTable"></tbody>
+        </table>
+      </div>
+      <div>
+        <table class="data-table">
+          <thead><tr><th colspan="3">Most Worsening</th></tr><tr><th>County</th><th>Region</th><th>Change</th></tr></thead>
+          <tbody id="worseningTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="findings">
+  <h3>Auto-Generated Key Findings</h3>
+  <ul id="keyFindings"></ul>
+</div>
+
+<div class="method">
+  <strong>Method note:</strong> Low birth weight is calculated as births under 2,500 grams divided by known birth weight records.
+  Very low birth weight is calculated as births under 1,500 grams divided by known birth weight records.
+  Regional and county values are calculated from the same county-level vital statistics source to support consistent comparison.
+</div>
+
+<div class="foot">
+  <span>Source: NYS Health Data — Vital Statistics Live Birth by Birth Weight and Resident County, 2008–2023</span>
+  <span> </span>
+</div>
+<div class="footer-left">
+<strong>Developed by:</strong> Leyla (Hakimeh) Sehhat N.
+| <a href="www.linkedin.com/in/hakimeh-sehhat-n-34059a46" target="_blank">LinkedIn Profile</a>
+</div>
+</div><!-- wrap -->
+
+<div id="tip"></div>
+
+<script>
+/* ══════════════════
+   DATA  [yr, county, region, known, normal, low, vlow]
+══════════════════ */
+const RAW=[
+  [2023,"Albany","Hudson Valley",2771,2524,247,45],
+  [2023,"Columbia","Hudson Valley",439,394,45,7],
+  [2023,"Greene","Hudson Valley",393,365,28,4],
+  [2023,"Rensselaer","Hudson Valley",1511,1375,136,23],
+  [2023,"Saratoga","Hudson Valley",1967,1843,124,18],
+  [2023,"Schenectady","Hudson Valley",1661,1482,179,38],
+  [2023,"Warren","Hudson Valley",507,454,53,12],
+  [2023,"Washington","Hudson Valley",506,460,46,9],
+  [2023,"Cayuga","Central NY",655,596,59,7],
+  [2023,"Cortland","Central NY",426,395,31,6],
+  [2023,"Madison","Central NY",522,478,44,6],
+  [2023,"Onondaga","Central NY",4483,4093,390,48],
+  [2023,"Oswego","Central NY",1110,997,113,20],
+  [2023,"Genesee","Western NY",475,444,31,5],
+  [2023,"Livingston","Western NY",473,439,34,3],
+  [2023,"Monroe","Western NY",7147,6473,674,127],
+  [2023,"Ontario","Western NY",927,853,74,11],
+  [2023,"Orleans","Western NY",353,325,28,3],
+  [2023,"Seneca","Western NY",346,321,25,3],
+  [2023,"Wayne","Western NY",852,788,64,10],
+  [2023,"Wyoming","Western NY",345,320,25,4],
+  [2023,"Yates","Western NY",308,294,14,1],
+  [2023,"Nassau","Long Island",13461,12322,1139,146],
+  [2023,"Suffolk","Long Island",15472,14158,1314,193],
+  [2023,"Dutchess","Hudson Valley",2517,2307,210,33],
+  [2023,"Orange","Hudson Valley",5724,5323,401,39],
+  [2023,"Putnam","Hudson Valley",903,851,52,5],
+  [2023,"Rockland","Hudson Valley",6598,6209,389,45],
+  [2023,"Sullivan","Hudson Valley",947,871,76,10],
+  [2023,"Ulster","Hudson Valley",1384,1279,105,20],
+  [2023,"Westchester","Hudson Valley",9685,8914,771,117],
+  [2023,"Fulton","Hudson Valley",422,382,40,8],
+  [2023,"Herkimer","Central NY",542,505,37,7],
+  [2023,"Montgomery","Hudson Valley",521,479,42,4],
+  [2023,"Oneida","Central NY",2246,2019,227,33],
+  [2023,"Otsego","Central NY",475,435,40,5],
+  [2023,"Schoharie","Hudson Valley",199,179,20,3],
+  [2023,"Bronx","New York City",16041,14299,1742,284],
+  [2023,"Kings","New York City",32874,30316,2558,352],
+  [2023,"New York","New York City",13334,12243,1091,139],
+  [2023,"Queens","New York City",23814,21585,2229,281],
+  [2023,"Richmond","New York City",4792,4393,399,59],
+  [2023,"Clinton","Hudson Valley",589,542,47,7],
+  [2023,"Essex","Hudson Valley",206,192,14,1],
+  [2023,"Franklin","Hudson Valley",380,349,31,7],
+  [2023,"Hamilton","Hudson Valley",36,33,3,0],
+  [2023,"Jefferson","Central NY",1599,1450,149,20],
+  [2023,"Lewis","Central NY",255,242,13,1],
+  [2023,"St Lawrence","Central NY",972,887,85,9],
+  [2023,"Broome","Central NY",1693,1536,157,24],
+  [2023,"Chemung","Central NY",754,687,67,12],
+  [2023,"Chenango","Central NY",420,390,30,1],
+  [2023,"Delaware","Hudson Valley",330,310,20,1],
+  [2023,"Schuyler","Central NY",146,140,6,0],
+  [2023,"Steuben","Central NY",885,831,54,4],
+  [2023,"Tioga","Central NY",407,381,26,3],
+  [2023,"Tompkins","Central NY",642,592,50,6],
+  [2023,"Allegany","Western NY",406,365,41,5],
+  [2023,"Cattaraugus","Western NY",686,619,67,6],
+  [2023,"Chautauqua","Western NY",1156,1048,108,22],
+  [2023,"Erie","Western NY",8712,7893,819,150],
+  [2023,"Niagara","Western NY",1839,1673,166,26],
+  [2022,"Albany","Hudson Valley",2817,2561,256,50],
+  [2022,"Columbia","Hudson Valley",470,443,27,5],
+  [2022,"Greene","Hudson Valley",378,351,27,5],
+  [2022,"Rensselaer","Hudson Valley",1480,1368,112,16],
+  [2022,"Saratoga","Hudson Valley",2075,1944,131,18],
+  [2022,"Schenectady","Hudson Valley",1661,1497,164,25],
+  [2022,"Warren","Hudson Valley",536,491,45,11],
+  [2022,"Washington","Hudson Valley",530,485,45,11],
+  [2022,"Cayuga","Central NY",705,651,54,11],
+  [2022,"Cortland","Central NY",438,405,33,7],
+  [2022,"Madison","Central NY",568,520,48,1],
+  [2022,"Onondaga","Central NY",4627,4184,443,84],
+  [2022,"Oswego","Central NY",1098,988,110,17],
+  [2022,"Genesee","Western NY",553,510,43,6],
+  [2022,"Livingston","Western NY",511,476,35,5],
+  [2022,"Monroe","Western NY",7435,6708,727,137],
+  [2022,"Ontario","Western NY",1014,946,68,18],
+  [2022,"Orleans","Western NY",376,345,31,5],
+  [2022,"Seneca","Western NY",289,275,14,2],
+  [2022,"Wayne","Western NY",839,776,63,12],
+  [2022,"Wyoming","Western NY",341,317,24,6],
+  [2022,"Yates","Western NY",314,307,7,2],
+  [2022,"Nassau","Long Island",13742,12585,1157,147],
+  [2022,"Suffolk","Long Island",16100,14790,1310,166],
+  [2022,"Dutchess","Hudson Valley",2612,2421,191,29],
+  [2022,"Orange","Hudson Valley",5436,5031,405,78],
+  [2022,"Putnam","Hudson Valley",908,848,60,6],
+  [2022,"Rockland","Hudson Valley",6375,6016,359,28],
+  [2022,"Sullivan","Hudson Valley",973,888,85,8],
+  [2022,"Ulster","Hudson Valley",1539,1408,131,21],
+  [2022,"Westchester","Hudson Valley",9912,9145,767,141],
+  [2022,"Fulton","Hudson Valley",506,456,50,9],
+  [2022,"Herkimer","Central NY",588,543,45,8],
+  [2022,"Montgomery","Hudson Valley",565,527,38,8],
+  [2022,"Oneida","Central NY",2177,1978,199,23],
+  [2022,"Otsego","Central NY",451,430,21,3],
+  [2022,"Schoharie","Hudson Valley",252,244,8,2],
+  [2022,"Bronx","New York City",16724,14925,1799,301],
+  [2022,"Kings","New York City",33377,30730,2647,360],
+  [2022,"New York","New York City",13196,12022,1174,164],
+  [2022,"Queens","New York City",23871,21566,2305,331],
+  [2022,"Richmond","New York City",4908,4485,423,65],
+  [2022,"Clinton","Hudson Valley",614,566,48,12],
+  [2022,"Essex","Hudson Valley",257,232,25,8],
+  [2022,"Franklin","Hudson Valley",436,408,28,1],
+  [2022,"Hamilton","Hudson Valley",24,23,1,0],
+  [2022,"Jefferson","Central NY",1755,1604,151,32],
+  [2022,"Lewis","Central NY",309,282,27,5],
+  [2022,"St Lawrence","Central NY",860,801,59,6],
+  [2022,"Broome","Central NY",1683,1537,146,25],
+  [2022,"Chemung","Central NY",802,729,73,15],
+  [2022,"Chenango","Central NY",462,429,33,2],
+  [2022,"Delaware","Hudson Valley",350,326,24,5],
+  [2022,"Schuyler","Central NY",139,130,9,1],
+  [2022,"Steuben","Central NY",985,924,61,15],
+  [2022,"Tioga","Central NY",486,456,30,4],
+  [2022,"Tompkins","Central NY",638,582,56,7],
+  [2022,"Allegany","Western NY",459,419,40,8],
+  [2022,"Cattaraugus","Western NY",695,627,68,7],
+  [2022,"Chautauqua","Western NY",1111,1020,91,19],
+  [2022,"Erie","Western NY",9074,8255,819,128],
+  [2022,"Niagara","Western NY",1959,1777,182,24],
+  [2021,"Albany","Hudson Valley",2920,2675,245,57],
+  [2021,"Columbia","Hudson Valley",473,439,34,4],
+  [2021,"Greene","Hudson Valley",388,355,33,6],
+  [2021,"Rensselaer","Hudson Valley",1479,1365,114,20],
+  [2021,"Saratoga","Hudson Valley",2119,1974,145,21],
+  [2021,"Schenectady","Hudson Valley",1773,1624,149,33],
+  [2021,"Warren","Hudson Valley",523,486,37,6],
+  [2021,"Washington","Hudson Valley",557,511,46,6],
+  [2021,"Cayuga","Central NY",652,597,55,15],
+  [2021,"Cortland","Central NY",413,389,24,6],
+  [2021,"Madison","Central NY",532,496,36,3],
+  [2021,"Onondaga","Central NY",4890,4450,440,82],
+  [2021,"Oswego","Central NY",1125,1015,110,15],
+  [2021,"Genesee","Western NY",539,503,36,2],
+  [2021,"Livingston","Western NY",517,485,32,3],
+  [2021,"Monroe","Western NY",7716,6989,727,126],
+  [2021,"Ontario","Western NY",978,905,73,11],
+  [2021,"Orleans","Western NY",394,363,31,0],
+  [2021,"Seneca","Western NY",344,325,19,4],
+  [2021,"Wayne","Western NY",878,809,69,10],
+  [2021,"Wyoming","Western NY",358,337,21,6],
+  [2021,"Yates","Western NY",344,328,16,5],
+  [2021,"Nassau","Long Island",14181,13010,1171,168],
+  [2021,"Suffolk","Long Island",15862,14597,1265,176],
+  [2021,"Dutchess","Hudson Valley",2634,2414,220,35],
+  [2021,"Orange","Hudson Valley",5456,5091,365,69],
+  [2021,"Putnam","Hudson Valley",913,839,74,10],
+  [2021,"Rockland","Hudson Valley",5864,5520,344,52],
+  [2021,"Sullivan","Hudson Valley",973,913,60,11],
+  [2021,"Ulster","Hudson Valley",1570,1451,119,22],
+  [2021,"Westchester","Hudson Valley",10037,9266,771,122],
+  [2021,"Fulton","Hudson Valley",487,446,41,6],
+  [2021,"Herkimer","Central NY",563,526,37,7],
+  [2021,"Montgomery","Hudson Valley",550,507,43,10],
+  [2021,"Oneida","Central NY",2429,2208,221,29],
+  [2021,"Otsego","Central NY",475,451,24,5],
+  [2021,"Schoharie","Hudson Valley",263,254,9,1],
+  [2021,"Bronx","New York City",16828,14989,1839,355],
+  [2021,"Kings","New York City",33377,30708,2669,429],
+  [2021,"New York","New York City",13694,12552,1142,145],
+  [2021,"Queens","New York City",23616,21408,2208,319],
+  [2021,"Richmond","New York City",4984,4578,406,63],
+  [2021,"Clinton","Hudson Valley",663,606,57,4],
+  [2021,"Essex","Hudson Valley",264,243,21,4],
+  [2021,"Franklin","Hudson Valley",448,406,42,6],
+  [2021,"Hamilton","Hudson Valley",31,30,1,0],
+  [2021,"Jefferson","Central NY",1794,1653,141,24],
+  [2021,"Lewis","Central NY",288,271,17,2],
+  [2021,"St Lawrence","Central NY",969,894,75,12],
+  [2021,"Broome","Central NY",1840,1700,140,32],
+  [2021,"Chemung","Central NY",821,758,63,15],
+  [2021,"Chenango","Central NY",470,440,30,6],
+  [2021,"Delaware","Hudson Valley",361,330,31,5],
+  [2021,"Schuyler","Central NY",171,155,16,2],
+  [2021,"Steuben","Central NY",983,909,74,8],
+  [2021,"Tioga","Central NY",461,428,33,7],
+  [2021,"Tompkins","Central NY",699,665,34,6],
+  [2021,"Allegany","Western NY",481,444,37,4],
+  [2021,"Cattaraugus","Western NY",713,667,46,7],
+  [2021,"Chautauqua","Western NY",1213,1106,107,17],
+  [2021,"Erie","Western NY",9513,8596,917,168],
+  [2021,"Niagara","Western NY",1986,1795,191,43],
+  [2020,"Albany","Hudson Valley",2866,2627,239,53],
+  [2020,"Columbia","Hudson Valley",461,425,36,5],
+  [2020,"Greene","Hudson Valley",398,378,20,3],
+  [2020,"Rensselaer","Hudson Valley",1577,1436,141,23],
+  [2020,"Saratoga","Hudson Valley",1968,1823,145,29],
+  [2020,"Schenectady","Hudson Valley",1727,1572,155,28],
+  [2020,"Warren","Hudson Valley",496,470,26,2],
+  [2020,"Washington","Hudson Valley",532,495,37,6],
+  [2020,"Cayuga","Central NY",699,644,55,10],
+  [2020,"Cortland","Central NY",453,426,27,8],
+  [2020,"Madison","Central NY",533,507,26,4],
+  [2020,"Onondaga","Central NY",4856,4441,415,82],
+  [2020,"Oswego","Central NY",1157,1086,71,14],
+  [2020,"Genesee","Western NY",546,511,35,8],
+  [2020,"Livingston","Western NY",507,468,39,6],
+  [2020,"Monroe","Western NY",7520,6829,691,132],
+  [2020,"Ontario","Western NY",948,887,61,7],
+  [2020,"Orleans","Western NY",394,367,27,16],
+  [2020,"Seneca","Western NY",355,339,16,1],
+  [2020,"Wayne","Western NY",896,830,66,10],
+  [2020,"Wyoming","Western NY",350,331,19,1],
+  [2020,"Yates","Western NY",313,300,13,0],
+  [2020,"Nassau","Long Island",13329,12270,1059,136],
+  [2020,"Suffolk","Long Island",14708,13540,1168,168],
+  [2020,"Dutchess","Hudson Valley",2563,2368,195,29],
+  [2020,"Orange","Hudson Valley",5228,4847,381,55],
+  [2020,"Putnam","Hudson Valley",831,771,60,10],
+  [2020,"Rockland","Hudson Valley",5703,5388,315,45],
+  [2020,"Sullivan","Hudson Valley",867,784,83,9],
+  [2020,"Ulster","Hudson Valley",1472,1361,111,11],
+  [2020,"Westchester","Hudson Valley",9630,8870,760,120],
+  [2020,"Fulton","Hudson Valley",446,396,50,4],
+  [2020,"Herkimer","Central NY",614,572,42,7],
+  [2020,"Montgomery","Hudson Valley",575,522,53,12],
+  [2020,"Oneida","Central NY",2382,2161,221,35],
+  [2020,"Otsego","Central NY",458,434,24,7],
+  [2020,"Schoharie","Hudson Valley",238,226,12,4],
+  [2020,"Bronx","New York City",17449,15616,1833,360],
+  [2020,"Kings","New York City",34088,31449,2639,396],
+  [2020,"New York","New York City",14046,12882,1164,167],
+  [2020,"Queens","New York City",24387,22246,2141,349],
+  [2020,"Richmond","New York City",4878,4499,379,53],
+  [2020,"Clinton","Hudson Valley",636,590,46,8],
+  [2020,"Essex","Hudson Valley",272,258,14,1],
+  [2020,"Franklin","Hudson Valley",438,412,26,6],
+  [2020,"Hamilton","Hudson Valley",25,25,0,0],
+  [2020,"Jefferson","Central NY",1782,1648,134,22],
+  [2020,"Lewis","Central NY",278,262,16,2],
+  [2020,"St Lawrence","Central NY",974,903,71,13],
+  [2020,"Broome","Central NY",1783,1629,154,31],
+  [2020,"Chemung","Central NY",806,725,81,13],
+  [2020,"Chenango","Central NY",428,396,32,4],
+  [2020,"Delaware","Hudson Valley",369,344,25,6],
+  [2020,"Schuyler","Central NY",163,159,4,0],
+  [2020,"Steuben","Central NY",910,851,59,13],
+  [2020,"Tioga","Central NY",430,398,32,4],
+  [2020,"Tompkins","Central NY",662,633,29,3],
+  [2020,"Allegany","Western NY",449,420,29,4],
+  [2020,"Cattaraugus","Western NY",735,664,71,11],
+  [2020,"Chautauqua","Western NY",1208,1118,90,20],
+  [2020,"Erie","Western NY",9442,8596,846,168],
+  [2020,"Niagara","Western NY",1978,1816,162,28],
+  [2019,"Albany","Hudson Valley",2972,2720,252,46],
+  [2019,"Columbia","Hudson Valley",472,442,30,0],
+  [2019,"Greene","Hudson Valley",358,327,31,4],
+  [2019,"Rensselaer","Hudson Valley",1606,1449,157,23],
+  [2019,"Saratoga","Hudson Valley",2049,1921,128,23],
+  [2019,"Schenectady","Hudson Valley",1718,1569,149,28],
+  [2019,"Warren","Hudson Valley",533,496,37,9],
+  [2019,"Washington","Hudson Valley",557,512,45,4],
+  [2019,"Cayuga","Central NY",747,697,50,13],
+  [2019,"Cortland","Central NY",440,404,36,6],
+  [2019,"Madison","Central NY",609,555,54,10],
+  [2019,"Onondaga","Central NY",5053,4672,381,58],
+  [2019,"Oswego","Central NY",1226,1156,70,11],
+  [2019,"Genesee","Western NY",555,516,39,10],
+  [2019,"Livingston","Western NY",544,508,36,7],
+  [2019,"Monroe","Western NY",7912,7179,733,171],
+  [2019,"Ontario","Western NY",969,902,67,13],
+  [2019,"Orleans","Western NY",422,399,23,8],
+  [2019,"Seneca","Western NY",360,330,30,9],
+  [2019,"Wayne","Western NY",886,822,64,8],
+  [2019,"Wyoming","Western NY",356,322,34,5],
+  [2019,"Yates","Western NY",304,292,12,1],
+  [2019,"Nassau","Long Island",13872,12747,1125,161],
+  [2019,"Suffolk","Long Island",14995,13797,1198,174],
+  [2019,"Dutchess","Hudson Valley",2697,2496,201,32],
+  [2019,"Orange","Hudson Valley",5185,4816,369,64],
+  [2019,"Putnam","Hudson Valley",797,753,44,8],
+  [2019,"Rockland","Hudson Valley",5720,5400,320,58],
+  [2019,"Sullivan","Hudson Valley",875,793,82,12],
+  [2019,"Ulster","Hudson Valley",1516,1387,129,24],
+  [2019,"Westchester","Hudson Valley",9900,9158,742,140],
+  [2019,"Fulton","Hudson Valley",510,464,46,2],
+  [2019,"Herkimer","Central NY",621,586,35,11],
+  [2019,"Montgomery","Hudson Valley",557,512,45,7],
+  [2019,"Oneida","Central NY",2499,2313,186,39],
+  [2019,"Otsego","Central NY",420,399,21,4],
+  [2019,"Schoharie","Hudson Valley",245,232,13,1],
+  [2019,"Bronx","New York City",18962,17026,1936,381],
+  [2019,"Kings","New York City",37028,34160,2868,437],
+  [2019,"New York","New York City",16256,15030,1226,193],
+  [2019,"Queens","New York City",26849,24466,2383,348],
+  [2019,"Richmond","New York City",5193,4808,385,79],
+  [2019,"Clinton","Hudson Valley",721,668,53,8],
+  [2019,"Essex","Hudson Valley",313,288,25,2],
+  [2019,"Franklin","Hudson Valley",407,380,27,1],
+  [2019,"Hamilton","Hudson Valley",29,27,2,0],
+  [2019,"Jefferson","Central NY",1797,1656,141,28],
+  [2019,"Lewis","Central NY",299,286,13,1],
+  [2019,"St Lawrence","Central NY",975,898,77,15],
+  [2019,"Broome","Central NY",1948,1806,142,20],
+  [2019,"Chemung","Central NY",893,835,58,13],
+  [2019,"Chenango","Central NY",462,424,38,9],
+  [2019,"Delaware","Hudson Valley",349,324,25,3],
+  [2019,"Schuyler","Central NY",165,159,6,2],
+  [2019,"Steuben","Central NY",1033,952,81,9],
+  [2019,"Tioga","Central NY",471,438,33,3],
+  [2019,"Tompkins","Central NY",701,671,30,3],
+  [2019,"Allegany","Western NY",455,426,29,6],
+  [2019,"Cattaraugus","Western NY",744,695,49,4],
+  [2019,"Chautauqua","Western NY",1303,1190,113,13],
+  [2019,"Erie","Western NY",9671,8831,840,153],
+  [2019,"Niagara","Western NY",2067,1916,151,24],
+  [2018,"Albany","Hudson Valley",2956,2728,228,31],
+  [2018,"Columbia","Hudson Valley",461,431,30,8],
+  [2018,"Greene","Hudson Valley",436,409,27,5],
+  [2018,"Rensselaer","Hudson Valley",1583,1472,111,25],
+  [2018,"Saratoga","Hudson Valley",2023,1903,120,16],
+  [2018,"Schenectady","Hudson Valley",1767,1592,175,39],
+  [2018,"Warren","Hudson Valley",544,499,45,11],
+  [2018,"Washington","Hudson Valley",549,495,54,12],
+  [2018,"Cayuga","Central NY",724,672,52,6],
+  [2018,"Cortland","Central NY",448,410,38,6],
+  [2018,"Madison","Central NY",640,589,51,7],
+  [2018,"Onondaga","Central NY",5234,4788,446,78],
+  [2018,"Oswego","Central NY",1203,1130,73,8],
+  [2018,"Genesee","Western NY",577,537,40,6],
+  [2018,"Livingston","Western NY",494,457,37,8],
+  [2018,"Monroe","Western NY",7768,7084,684,134],
+  [2018,"Ontario","Western NY",975,900,75,19],
+  [2018,"Orleans","Western NY",348,322,26,4],
+  [2018,"Seneca","Western NY",401,371,30,2],
+  [2018,"Wayne","Western NY",990,931,59,10],
+  [2018,"Wyoming","Western NY",379,343,36,8],
+  [2018,"Yates","Western NY",339,326,13,2],
+  [2018,"Nassau","Long Island",14171,13090,1081,164],
+  [2018,"Suffolk","Long Island",15238,14014,1224,195],
+  [2018,"Dutchess","Hudson Valley",2541,2365,176,30],
+  [2018,"Orange","Hudson Valley",5066,4733,333,54],
+  [2018,"Putnam","Hudson Valley",844,785,59,16],
+  [2018,"Rockland","Hudson Valley",5724,5402,322,47],
+  [2018,"Sullivan","Hudson Valley",851,794,57,7],
+  [2018,"Ulster","Hudson Valley",1546,1437,109,11],
+  [2018,"Westchester","Hudson Valley",10104,9296,808,146],
+  [2018,"Fulton","Hudson Valley",517,483,34,2],
+  [2018,"Herkimer","Central NY",586,547,39,2],
+  [2018,"Montgomery","Hudson Valley",590,551,39,8],
+  [2018,"Oneida","Central NY",2509,2332,177,28],
+  [2018,"Otsego","Central NY",488,457,31,3],
+  [2018,"Schoharie","Hudson Valley",285,271,14,4],
+  [2018,"Bronx","New York City",19776,17836,1940,347],
+  [2018,"Kings","New York City",38429,35403,3026,482],
+  [2018,"New York","New York City",16653,15284,1369,191],
+  [2018,"Queens","New York City",27864,25499,2365,355],
+  [2018,"Richmond","New York City",5089,4665,424,61],
+  [2018,"Clinton","Hudson Valley",718,648,70,9],
+  [2018,"Essex","Hudson Valley",308,282,26,5],
+  [2018,"Franklin","Hudson Valley",465,430,35,4],
+  [2018,"Hamilton","Hudson Valley",18,17,1,0],
+  [2018,"Jefferson","Central NY",1855,1733,122,21],
+  [2018,"Lewis","Central NY",328,302,26,7],
+  [2018,"St Lawrence","Central NY",1051,982,69,14],
+  [2018,"Broome","Central NY",1873,1727,146,23],
+  [2018,"Chemung","Central NY",869,804,65,11],
+  [2018,"Chenango","Central NY",460,427,33,7],
+  [2018,"Delaware","Hudson Valley",396,366,30,5],
+  [2018,"Schuyler","Central NY",176,172,4,1],
+  [2018,"Steuben","Central NY",1036,963,73,11],
+  [2018,"Tioga","Central NY",433,403,30,3],
+  [2018,"Tompkins","Central NY",728,668,60,8],
+  [2018,"Allegany","Western NY",460,426,34,4],
+  [2018,"Cattaraugus","Western NY",777,721,56,9],
+  [2018,"Chautauqua","Western NY",1278,1162,116,23],
+  [2018,"Erie","Western NY",9757,8909,848,174],
+  [2018,"Niagara","Western NY",2101,1907,194,33],
+  [2017,"Albany","Hudson Valley",3176,2908,268,58],
+  [2017,"Columbia","Hudson Valley",498,465,33,8],
+  [2017,"Greene","Hudson Valley",386,356,30,4],
+  [2017,"Rensselaer","Hudson Valley",1562,1416,146,33],
+  [2017,"Saratoga","Hudson Valley",2144,1994,150,24],
+  [2017,"Schenectady","Hudson Valley",1725,1578,147,25],
+  [2017,"Warren","Hudson Valley",542,482,60,11],
+  [2017,"Washington","Hudson Valley",524,493,31,8],
+  [2017,"Cayuga","Central NY",779,725,54,12],
+  [2017,"Cortland","Central NY",470,436,34,5],
+  [2017,"Madison","Central NY",655,605,50,13],
+  [2017,"Onondaga","Central NY",5061,4659,402,80],
+  [2017,"Oswego","Central NY",1235,1134,101,23],
+  [2017,"Genesee","Western NY",550,513,37,4],
+  [2017,"Livingston","Western NY",502,473,29,5],
+  [2017,"Monroe","Western NY",7880,7149,731,135],
+  [2017,"Ontario","Western NY",976,911,65,13],
+  [2017,"Orleans","Western NY",411,381,30,7],
+  [2017,"Seneca","Western NY",340,328,12,3],
+  [2017,"Wayne","Western NY",949,878,71,16],
+  [2017,"Wyoming","Western NY",344,325,19,4],
+  [2017,"Yates","Western NY",315,302,13,0],
+  [2017,"Nassau","Long Island",14181,13073,1108,186],
+  [2017,"Suffolk","Long Island",15330,14130,1200,212],
+  [2017,"Dutchess","Hudson Valley",2594,2383,211,31],
+  [2017,"Orange","Hudson Valley",5081,4766,315,53],
+  [2017,"Putnam","Hudson Valley",796,743,53,10],
+  [2017,"Rockland","Hudson Valley",5469,5136,333,49],
+  [2017,"Sullivan","Hudson Valley",797,739,58,8],
+  [2017,"Ulster","Hudson Valley",1467,1359,108,11],
+  [2017,"Westchester","Hudson Valley",10421,9601,820,118],
+  [2017,"Fulton","Hudson Valley",538,502,36,2],
+  [2017,"Herkimer","Central NY",585,542,43,5],
+  [2017,"Montgomery","Hudson Valley",591,550,41,6],
+  [2017,"Oneida","Central NY",2564,2367,197,41],
+  [2017,"Otsego","Central NY",473,437,36,5],
+  [2017,"Schoharie","Hudson Valley",245,237,8,1],
+  [2017,"Bronx","New York City",20246,18252,1994,398],
+  [2017,"Kings","New York City",39064,36068,2996,509],
+  [2017,"New York","New York City",17140,15721,1419,194],
+  [2017,"Queens","New York City",28872,26394,2478,446],
+  [2017,"Richmond","New York City",5354,4896,458,80],
+  [2017,"Clinton","Hudson Valley",711,676,35,2],
+  [2017,"Essex","Hudson Valley",283,257,26,3],
+  [2017,"Franklin","Hudson Valley",435,417,18,3],
+  [2017,"Hamilton","Hudson Valley",27,26,1,0],
+  [2017,"Jefferson","Central NY",1997,1866,131,31],
+  [2017,"Lewis","Central NY",334,310,24,3],
+  [2017,"St Lawrence","Central NY",979,912,67,15],
+  [2017,"Broome","Central NY",1972,1802,170,30],
+  [2017,"Chemung","Central NY",898,834,64,13],
+  [2017,"Chenango","Central NY",483,460,23,2],
+  [2017,"Delaware","Hudson Valley",359,339,20,3],
+  [2017,"Schuyler","Central NY",161,149,12,5],
+  [2017,"Steuben","Central NY",997,933,64,11],
+  [2017,"Tioga","Central NY",431,400,31,4],
+  [2017,"Tompkins","Central NY",765,716,49,5],
+  [2017,"Allegany","Western NY",475,435,40,9],
+  [2017,"Cattaraugus","Western NY",741,685,56,10],
+  [2017,"Chautauqua","Western NY",1315,1231,84,18],
+  [2017,"Erie","Western NY",9804,8911,893,152],
+  [2017,"Niagara","Western NY",2111,1921,190,23],
+  [2016,"Albany","Hudson Valley",3128,2855,273,46],
+  [2016,"Columbia","Hudson Valley",509,489,20,4],
+  [2016,"Greene","Hudson Valley",368,336,32,2],
+  [2016,"Rensselaer","Hudson Valley",1694,1567,127,28],
+  [2016,"Saratoga","Hudson Valley",2211,2072,139,30],
+  [2016,"Schenectady","Hudson Valley",1696,1537,159,36],
+  [2016,"Warren","Hudson Valley",571,530,41,7],
+  [2016,"Washington","Hudson Valley",540,492,48,11],
+  [2016,"Cayuga","Central NY",779,733,46,7],
+  [2016,"Cortland","Central NY",495,450,45,6],
+  [2016,"Madison","Central NY",620,580,40,10],
+  [2016,"Onondaga","Central NY",5238,4819,419,95],
+  [2016,"Oswego","Central NY",1320,1229,91,20],
+  [2016,"Genesee","Western NY",577,545,32,6],
+  [2016,"Livingston","Western NY",526,487,39,4],
+  [2016,"Monroe","Western NY",7994,7337,657,126],
+  [2016,"Ontario","Western NY",986,934,52,12],
+  [2016,"Orleans","Western NY",405,381,24,4],
+  [2016,"Seneca","Western NY",352,331,21,3],
+  [2016,"Wayne","Western NY",916,850,66,10],
+  [2016,"Wyoming","Western NY",397,371,26,4],
+  [2016,"Yates","Western NY",304,288,16,5],
+  [2016,"Nassau","Long Island",14275,13125,1150,168],
+  [2016,"Suffolk","Long Island",15536,14283,1253,183],
+  [2016,"Dutchess","Hudson Valley",2500,2319,181,41],
+  [2016,"Orange","Hudson Valley",4913,4555,358,56],
+  [2016,"Putnam","Hudson Valley",817,758,59,3],
+  [2016,"Rockland","Hudson Valley",5201,4868,333,49],
+  [2016,"Sullivan","Hudson Valley",857,791,66,17],
+  [2016,"Ulster","Hudson Valley",1499,1392,107,10],
+  [2016,"Westchester","Hudson Valley",10271,9467,804,144],
+  [2016,"Fulton","Hudson Valley",506,462,44,11],
+  [2016,"Herkimer","Central NY",633,584,49,11],
+  [2016,"Montgomery","Hudson Valley",560,511,49,5],
+  [2016,"Oneida","Central NY",2501,2295,206,38],
+  [2016,"Otsego","Central NY",490,460,30,7],
+  [2016,"Schoharie","Hudson Valley",240,220,20,6],
+  [2016,"Bronx","New York City",20831,18878,1953,379],
+  [2016,"Kings","New York City",40801,37649,3152,526],
+  [2016,"New York","New York City",17051,15711,1340,184],
+  [2016,"Queens","New York City",30291,27788,2503,381],
+  [2016,"Richmond","New York City",5422,5019,403,57],
+  [2016,"Clinton","Hudson Valley",742,707,35,8],
+  [2016,"Essex","Hudson Valley",265,247,18,4],
+  [2016,"Franklin","Hudson Valley",471,447,24,4],
+  [2016,"Hamilton","Hudson Valley",21,20,1,0],
+  [2016,"Jefferson","Central NY",1879,1756,123,18],
+  [2016,"Lewis","Central NY",323,299,24,2],
+  [2016,"St Lawrence","Central NY",1059,1002,57,8],
+  [2016,"Broome","Central NY",1982,1834,148,24],
+  [2016,"Chemung","Central NY",934,877,57,12],
+  [2016,"Chenango","Central NY",519,482,37,3],
+  [2016,"Delaware","Hudson Valley",341,323,18,0],
+  [2016,"Schuyler","Central NY",167,154,13,1],
+  [2016,"Steuben","Central NY",1018,947,71,14],
+  [2016,"Tioga","Central NY",473,444,29,7],
+  [2016,"Tompkins","Central NY",793,741,52,6],
+  [2016,"Allegany","Western NY",494,464,30,4],
+  [2016,"Cattaraugus","Western NY",767,721,46,8],
+  [2016,"Chautauqua","Western NY",1290,1192,98,18],
+  [2016,"Erie","Western NY",9868,8987,881,174],
+  [2016,"Niagara","Western NY",2142,1983,159,29],
+  [2015,"Albany","Hudson Valley",3159,2929,230,42],
+  [2015,"Columbia","Hudson Valley",520,492,28,8],
+  [2015,"Greene","Hudson Valley",378,353,25,0],
+  [2015,"Rensselaer","Hudson Valley",1615,1493,122,19],
+  [2015,"Saratoga","Hudson Valley",2174,2030,144,24],
+  [2015,"Schenectady","Hudson Valley",1765,1609,156,40],
+  [2015,"Warren","Hudson Valley",540,507,33,7],
+  [2015,"Washington","Hudson Valley",584,547,37,2],
+  [2015,"Cayuga","Central NY",716,671,45,3],
+  [2015,"Cortland","Central NY",452,414,38,8],
+  [2015,"Madison","Central NY",645,596,49,7],
+  [2015,"Onondaga","Central NY",5259,4859,400,75],
+  [2015,"Oswego","Central NY",1193,1114,79,16],
+  [2015,"Genesee","Western NY",565,530,35,7],
+  [2015,"Livingston","Western NY",515,481,34,4],
+  [2015,"Monroe","Western NY",8171,7498,673,144],
+  [2015,"Ontario","Western NY",1031,968,63,14],
+  [2015,"Orleans","Western NY",448,415,33,6],
+  [2015,"Seneca","Western NY",367,346,21,4],
+  [2015,"Wayne","Western NY",966,889,77,14],
+  [2015,"Wyoming","Western NY",367,346,21,4],
+  [2015,"Yates","Western NY",316,299,17,1],
+  [2015,"Nassau","Long Island",14270,13143,1127,160],
+  [2015,"Suffolk","Long Island",15806,14656,1150,186],
+  [2015,"Dutchess","Hudson Valley",2597,2408,189,43],
+  [2015,"Orange","Hudson Valley",4791,4483,308,64],
+  [2015,"Putnam","Hudson Valley",810,753,57,11],
+  [2015,"Rockland","Hudson Valley",5112,4776,336,62],
+  [2015,"Sullivan","Hudson Valley",792,714,78,15],
+  [2015,"Ulster","Hudson Valley",1568,1457,111,23],
+  [2015,"Westchester","Hudson Valley",10633,9755,878,153],
+  [2015,"Fulton","Hudson Valley",522,486,36,3],
+  [2015,"Herkimer","Central NY",605,569,36,8],
+  [2015,"Montgomery","Hudson Valley",628,572,56,15],
+  [2015,"Oneida","Central NY",2514,2328,186,31],
+  [2015,"Otsego","Central NY",524,475,49,11],
+  [2015,"Schoharie","Hudson Valley",234,208,26,4],
+  [2015,"Bronx","New York City",21129,19179,1950,384],
+  [2015,"Kings","New York City",41508,38300,3208,505],
+  [2015,"New York","New York City",17775,16337,1438,225],
+  [2015,"Queens","New York City",30335,27875,2460,412],
+  [2015,"Richmond","New York City",5285,4887,398,67],
+  [2015,"Clinton","Hudson Valley",768,710,58,7],
+  [2015,"Essex","Hudson Valley",336,317,19,5],
+  [2015,"Franklin","Hudson Valley",488,453,35,7],
+  [2015,"Hamilton","Hudson Valley",31,30,1,1],
+  [2015,"Jefferson","Central NY",2078,1947,131,27],
+  [2015,"Lewis","Central NY",322,299,23,6],
+  [2015,"St Lawrence","Central NY",1129,1063,66,13],
+  [2015,"Broome","Central NY",1971,1830,141,27],
+  [2015,"Chemung","Central NY",982,909,73,11],
+  [2015,"Chenango","Central NY",489,453,36,4],
+  [2015,"Delaware","Hudson Valley",352,333,19,5],
+  [2015,"Schuyler","Central NY",180,168,12,2],
+  [2015,"Steuben","Central NY",1067,1004,63,13],
+  [2015,"Tioga","Central NY",465,435,30,4],
+  [2015,"Tompkins","Central NY",811,756,55,6],
+  [2015,"Allegany","Western NY",485,452,33,4],
+  [2015,"Cattaraugus","Western NY",797,736,61,6],
+  [2015,"Chautauqua","Western NY",1414,1320,94,17],
+  [2015,"Erie","Western NY",10150,9285,865,187],
+  [2015,"Niagara","Western NY",2147,1985,162,24],
+  [2014,"Albany","Hudson Valley",3162,2915,247,41],
+  [2014,"Columbia","Hudson Valley",492,452,40,6],
+  [2014,"Greene","Hudson Valley",397,362,35,8],
+  [2014,"Rensselaer","Hudson Valley",1647,1522,125,25],
+  [2014,"Saratoga","Hudson Valley",2233,2091,142,30],
+  [2014,"Schenectady","Hudson Valley",1819,1670,149,37],
+  [2014,"Warren","Hudson Valley",567,535,32,6],
+  [2014,"Washington","Hudson Valley",585,549,36,5],
+  [2014,"Cayuga","Central NY",775,728,47,10],
+  [2014,"Cortland","Central NY",466,429,37,7],
+  [2014,"Madison","Central NY",631,582,49,5],
+  [2014,"Onondaga","Central NY",5290,4860,430,82],
+  [2014,"Oswego","Central NY",1264,1170,94,10],
+  [2014,"Genesee","Western NY",621,584,37,11],
+  [2014,"Livingston","Western NY",525,503,22,4],
+  [2014,"Monroe","Western NY",8385,7685,700,144],
+  [2014,"Ontario","Western NY",1080,998,82,12],
+  [2014,"Orleans","Western NY",420,379,41,11],
+  [2014,"Seneca","Western NY",384,361,23,1],
+  [2014,"Wayne","Western NY",968,898,70,13],
+  [2014,"Wyoming","Western NY",389,364,25,0],
+  [2014,"Yates","Western NY",277,263,14,1],
+  [2014,"Nassau","Long Island",14339,13183,1156,188],
+  [2014,"Suffolk","Long Island",15567,14380,1187,186],
+  [2014,"Dutchess","Hudson Valley",2677,2446,231,45],
+  [2014,"Orange","Hudson Valley",4850,4517,333,53],
+  [2014,"Putnam","Hudson Valley",821,754,67,11],
+  [2014,"Rockland","Hudson Valley",5168,4854,314,42],
+  [2014,"Sullivan","Hudson Valley",784,713,71,9],
+  [2014,"Ulster","Hudson Valley",1523,1403,120,25],
+  [2014,"Westchester","Hudson Valley",10636,9744,892,149],
+  [2014,"Fulton","Hudson Valley",537,498,39,7],
+  [2014,"Herkimer","Central NY",655,603,52,13],
+  [2014,"Montgomery","Hudson Valley",609,567,42,10],
+  [2014,"Oneida","Central NY",2494,2311,183,40],
+  [2014,"Otsego","Central NY",533,498,35,2],
+  [2014,"Schoharie","Hudson Valley",259,237,22,5],
+  [2014,"Bronx","New York City",21309,19368,1941,401],
+  [2014,"Kings","New York City",41745,38628,3117,568],
+  [2014,"New York","New York City",18356,16842,1514,246],
+  [2014,"Queens","New York City",30361,27963,2398,396],
+  [2014,"Richmond","New York City",5325,4911,414,67],
+  [2014,"Clinton","Hudson Valley",753,700,53,16],
+  [2014,"Essex","Hudson Valley",297,283,14,1],
+  [2014,"Franklin","Hudson Valley",438,403,35,7],
+  [2014,"Hamilton","Hudson Valley",29,26,3,0],
+  [2014,"Jefferson","Central NY",2068,1922,146,26],
+  [2014,"Lewis","Central NY",355,336,19,5],
+  [2014,"St Lawrence","Central NY",1101,1035,66,8],
+  [2014,"Broome","Central NY",2109,1956,153,21],
+  [2014,"Chemung","Central NY",974,887,87,18],
+  [2014,"Chenango","Central NY",548,511,37,7],
+  [2014,"Delaware","Hudson Valley",405,375,30,5],
+  [2014,"Schuyler","Central NY",168,150,18,2],
+  [2014,"Steuben","Central NY",1073,1003,70,16],
+  [2014,"Tioga","Central NY",518,484,34,1],
+  [2014,"Tompkins","Central NY",855,809,46,10],
+  [2014,"Allegany","Western NY",506,477,29,5],
+  [2014,"Cattaraugus","Western NY",842,751,91,20],
+  [2014,"Chautauqua","Western NY",1456,1355,101,11],
+  [2014,"Erie","Western NY",10094,9248,846,180],
+  [2014,"Niagara","Western NY",2163,2002,161,32],
+  [2013,"Albany","Hudson Valley",3136,2867,269,64],
+  [2013,"Columbia","Hudson Valley",539,506,33,5],
+  [2013,"Greene","Hudson Valley",418,392,26,2],
+  [2013,"Rensselaer","Hudson Valley",1747,1602,145,25],
+  [2013,"Saratoga","Hudson Valley",2252,2110,142,27],
+  [2013,"Schenectady","Hudson Valley",1660,1548,112,20],
+  [2013,"Warren","Hudson Valley",609,566,43,10],
+  [2013,"Washington","Hudson Valley",611,568,43,8],
+  [2013,"Cayuga","Central NY",740,685,55,12],
+  [2013,"Cortland","Central NY",464,436,28,4],
+  [2013,"Madison","Central NY",638,601,37,5],
+  [2013,"Onondaga","Central NY",5233,4832,401,62],
+  [2013,"Oswego","Central NY",1321,1223,98,22],
+  [2013,"Genesee","Western NY",569,535,34,9],
+  [2013,"Livingston","Western NY",523,499,24,4],
+  [2013,"Monroe","Western NY",8353,7673,680,114],
+  [2013,"Ontario","Western NY",1027,958,69,7],
+  [2013,"Orleans","Western NY",414,384,30,4],
+  [2013,"Seneca","Western NY",394,370,24,3],
+  [2013,"Wayne","Western NY",959,887,72,10],
+  [2013,"Wyoming","Western NY",385,371,14,3],
+  [2013,"Yates","Western NY",297,284,13,1],
+  [2013,"Nassau","Long Island",13819,12745,1074,179],
+  [2013,"Suffolk","Long Island",15530,14348,1182,191],
+  [2013,"Dutchess","Hudson Valley",2589,2399,190,37],
+  [2013,"Orange","Hudson Valley",4743,4397,346,74],
+  [2013,"Putnam","Hudson Valley",801,741,60,3],
+  [2013,"Rockland","Hudson Valley",4650,4371,279,46],
+  [2013,"Sullivan","Hudson Valley",837,762,75,14],
+  [2013,"Ulster","Hudson Valley",1584,1473,111,25],
+  [2013,"Westchester","Hudson Valley",10544,9734,810,151],
+  [2013,"Fulton","Hudson Valley",526,478,48,7],
+  [2013,"Herkimer","Central NY",671,624,47,9],
+  [2013,"Montgomery","Hudson Valley",587,554,33,5],
+  [2013,"Oneida","Central NY",2641,2420,221,37],
+  [2013,"Otsego","Central NY",533,501,32,4],
+  [2013,"Schoharie","Hudson Valley",250,237,13,3],
+  [2013,"Bronx","New York City",21156,19164,1992,388],
+  [2013,"Kings","New York City",41056,37804,3252,518],
+  [2013,"New York","New York City",18422,16858,1564,246],
+  [2013,"Queens","New York City",30074,27634,2440,377],
+  [2013,"Richmond","New York City",5281,4831,450,69],
+  [2013,"Clinton","Hudson Valley",729,666,63,4],
+  [2013,"Essex","Hudson Valley",306,277,29,5],
+  [2013,"Franklin","Hudson Valley",509,467,42,4],
+  [2013,"Hamilton","Hudson Valley",30,28,2,1],
+  [2013,"Jefferson","Central NY",2194,2057,137,30],
+  [2013,"Lewis","Central NY",313,290,23,3],
+  [2013,"St Lawrence","Central NY",1187,1099,88,9],
+  [2013,"Broome","Central NY",2059,1910,149,32],
+  [2013,"Chemung","Central NY",938,870,68,12],
+  [2013,"Chenango","Central NY",497,466,31,3],
+  [2013,"Delaware","Hudson Valley",373,338,35,8],
+  [2013,"Schuyler","Central NY",157,147,10,2],
+  [2013,"Steuben","Central NY",1083,1005,78,13],
+  [2013,"Tioga","Central NY",521,465,56,11],
+  [2013,"Tompkins","Central NY",850,782,68,22],
+  [2013,"Allegany","Western NY",464,437,27,2],
+  [2013,"Cattaraugus","Western NY",825,757,68,16],
+  [2013,"Chautauqua","Western NY",1312,1208,104,16],
+  [2013,"Erie","Western NY",9859,9072,787,165],
+  [2013,"Niagara","Western NY",2195,2001,194,35],
+  [2012,"Albany","Hudson Valley",3132,2874,258,63],
+  [2012,"Columbia","Hudson Valley",529,487,42,6],
+  [2012,"Greene","Hudson Valley",412,377,35,4],
+  [2012,"Rensselaer","Hudson Valley",1596,1481,115,22],
+  [2012,"Saratoga","Hudson Valley",2194,2057,137,19],
+  [2012,"Schenectady","Hudson Valley",1937,1772,165,29],
+  [2012,"Warren","Hudson Valley",582,549,33,7],
+  [2012,"Washington","Hudson Valley",618,568,50,14],
+  [2012,"Cayuga","Central NY",803,758,45,5],
+  [2012,"Cortland","Central NY",458,428,30,4],
+  [2012,"Madison","Central NY",710,676,34,9],
+  [2012,"Onondaga","Central NY",5317,4941,376,69],
+  [2012,"Oswego","Central NY",1332,1235,97,16],
+  [2012,"Genesee","Western NY",605,570,35,12],
+  [2012,"Livingston","Western NY",503,469,34,4],
+  [2012,"Monroe","Western NY",8267,7547,720,145],
+  [2012,"Ontario","Western NY",1044,979,65,12],
+  [2012,"Orleans","Western NY",401,378,23,8],
+  [2012,"Seneca","Western NY",349,319,30,4],
+  [2012,"Wayne","Western NY",966,905,61,14],
+  [2012,"Wyoming","Western NY",376,347,29,7],
+  [2012,"Yates","Western NY",325,311,14,3],
+  [2012,"Nassau","Long Island",13991,12882,1109,182],
+  [2012,"Suffolk","Long Island",15727,14517,1210,213],
+  [2012,"Dutchess","Hudson Valley",2708,2518,190,45],
+  [2012,"Orange","Hudson Valley",4724,4373,351,73],
+  [2012,"Putnam","Hudson Valley",826,748,78,13],
+  [2012,"Rockland","Hudson Valley",4593,4381,212,47],
+  [2012,"Sullivan","Hudson Valley",949,870,79,14],
+  [2012,"Ulster","Hudson Valley",1581,1495,86,13],
+  [2012,"Westchester","Hudson Valley",10424,9647,777,157],
+  [2012,"Fulton","Hudson Valley",520,494,26,4],
+  [2012,"Herkimer","Central NY",657,613,44,6],
+  [2012,"Montgomery","Hudson Valley",558,520,38,7],
+  [2012,"Oneida","Central NY",2611,2389,222,50],
+  [2012,"Otsego","Central NY",517,487,30,6],
+  [2012,"Schoharie","Hudson Valley",262,249,13,1],
+  [2012,"Bronx","New York City",21282,19270,2012,427],
+  [2012,"Kings","New York City",42546,39170,3376,623],
+  [2012,"New York","New York City",19210,17585,1625,262],
+  [2012,"Queens","New York City",30484,28026,2458,383],
+  [2012,"Richmond","New York City",5285,4890,395,67],
+  [2012,"Clinton","Hudson Valley",780,728,52,12],
+  [2012,"Essex","Hudson Valley",335,313,22,5],
+  [2012,"Franklin","Hudson Valley",528,483,45,7],
+  [2012,"Hamilton","Hudson Valley",35,34,1,0],
+  [2012,"Jefferson","Central NY",2265,2107,158,38],
+  [2012,"Lewis","Central NY",339,312,27,6],
+  [2012,"St Lawrence","Central NY",1211,1118,93,25],
+  [2012,"Broome","Central NY",2074,1897,177,31],
+  [2012,"Chemung","Central NY",1046,982,64,8],
+  [2012,"Chenango","Central NY",542,512,30,4],
+  [2012,"Delaware","Hudson Valley",436,404,32,5],
+  [2012,"Schuyler","Central NY",196,187,9,1],
+  [2012,"Steuben","Central NY",1115,1039,76,9],
+  [2012,"Tioga","Central NY",489,460,29,4],
+  [2012,"Tompkins","Central NY",942,881,61,12],
+  [2012,"Allegany","Western NY",467,425,42,5],
+  [2012,"Cattaraugus","Western NY",822,752,70,21],
+  [2012,"Chautauqua","Western NY",1378,1275,103,14],
+  [2012,"Erie","Western NY",9939,9069,870,193],
+  [2012,"Niagara","Western NY",2132,1917,215,35],
+  [2011,"Albany","Hudson Valley",3119,2826,293,60],
+  [2011,"Columbia","Hudson Valley",544,503,41,2],
+  [2011,"Greene","Hudson Valley",428,392,36,8],
+  [2011,"Rensselaer","Hudson Valley",1730,1594,136,25],
+  [2011,"Saratoga","Hudson Valley",2147,1994,153,24],
+  [2011,"Schenectady","Hudson Valley",1764,1598,166,34],
+  [2011,"Warren","Hudson Valley",601,556,45,11],
+  [2011,"Washington","Hudson Valley",655,605,50,10],
+  [2011,"Cayuga","Central NY",803,744,59,13],
+  [2011,"Cortland","Central NY",481,451,30,6],
+  [2011,"Madison","Central NY",695,653,42,4],
+  [2011,"Onondaga","Central NY",5414,4978,436,95],
+  [2011,"Oswego","Central NY",1343,1247,96,18],
+  [2011,"Genesee","Western NY",586,557,29,8],
+  [2011,"Livingston","Western NY",577,548,29,2],
+  [2011,"Monroe","Western NY",8426,7719,707,137],
+  [2011,"Ontario","Western NY",1020,939,81,10],
+  [2011,"Orleans","Western NY",409,385,24,4],
+  [2011,"Seneca","Western NY",398,368,30,5],
+  [2011,"Wayne","Western NY",1033,963,70,8],
+  [2011,"Wyoming","Western NY",388,359,29,6],
+  [2011,"Yates","Western NY",302,282,20,3],
+  [2011,"Nassau","Long Island",14078,12941,1137,167],
+  [2011,"Suffolk","Long Island",16023,14787,1236,204],
+  [2011,"Dutchess","Hudson Valley",2650,2450,200,39],
+  [2011,"Orange","Hudson Valley",4833,4473,360,87],
+  [2011,"Putnam","Hudson Valley",866,804,62,12],
+  [2011,"Rockland","Hudson Valley",4535,4248,287,43],
+  [2011,"Sullivan","Hudson Valley",805,728,77,11],
+  [2011,"Ulster","Hudson Valley",1666,1567,99,22],
+  [2011,"Westchester","Hudson Valley",10718,9843,875,173],
+  [2011,"Fulton","Hudson Valley",584,539,45,12],
+  [2011,"Herkimer","Central NY",659,616,43,6],
+  [2011,"Montgomery","Hudson Valley",564,529,35,5],
+  [2011,"Oneida","Central NY",2689,2472,217,29],
+  [2011,"Otsego","Central NY",534,495,39,15],
+  [2011,"Schoharie","Hudson Valley",288,271,17,4],
+  [2011,"Bronx","New York City",21693,19682,2011,380],
+  [2011,"Kings","New York City",41671,38253,3418,644],
+  [2011,"New York","New York City",19506,17805,1701,286],
+  [2011,"Queens","New York City",30300,27875,2425,407],
+  [2011,"Richmond","New York City",5544,5091,453,70],
+  [2011,"Clinton","Hudson Valley",769,701,68,12],
+  [2011,"Essex","Hudson Valley",313,294,19,2],
+  [2011,"Franklin","Hudson Valley",518,460,58,14],
+  [2011,"Hamilton","Hudson Valley",39,38,1,0],
+  [2011,"Jefferson","Central NY",2110,1972,138,26],
+  [2011,"Lewis","Central NY",333,316,17,6],
+  [2011,"St Lawrence","Central NY",1217,1133,84,16],
+  [2011,"Broome","Central NY",2050,1884,166,28],
+  [2011,"Chemung","Central NY",1023,945,78,11],
+  [2011,"Chenango","Central NY",525,483,42,10],
+  [2011,"Delaware","Hudson Valley",392,361,31,5],
+  [2011,"Schuyler","Central NY",161,152,9,1],
+  [2011,"Steuben","Central NY",1058,981,77,20],
+  [2011,"Tioga","Central NY",481,453,28,5],
+  [2011,"Tompkins","Central NY",911,862,49,10],
+  [2011,"Allegany","Western NY",522,479,43,9],
+  [2011,"Cattaraugus","Western NY",825,760,65,12],
+  [2011,"Chautauqua","Western NY",1379,1265,114,22],
+  [2011,"Erie","Western NY",9674,8849,825,175],
+  [2011,"Niagara","Western NY",2129,1963,166,33],
+  [2010,"Albany","Hudson Valley",3073,2821,252,51],
+  [2010,"Columbia","Hudson Valley",588,551,37,10],
+  [2010,"Greene","Hudson Valley",461,417,44,10],
+  [2010,"Rensselaer","Hudson Valley",1677,1552,125,16],
+  [2010,"Saratoga","Hudson Valley",2304,2146,158,28],
+  [2010,"Schenectady","Hudson Valley",1836,1677,159,20],
+  [2010,"Warren","Hudson Valley",611,573,38,8],
+  [2010,"Washington","Hudson Valley",604,544,60,17],
+  [2010,"Cayuga","Central NY",820,761,59,8],
+  [2010,"Cortland","Central NY",455,419,36,9],
+  [2010,"Madison","Central NY",642,591,51,10],
+  [2010,"Onondaga","Central NY",5348,4910,438,74],
+  [2010,"Oswego","Central NY",1318,1216,102,19],
+  [2010,"Genesee","Western NY",648,606,42,5],
+  [2010,"Livingston","Western NY",570,532,38,2],
+  [2010,"Monroe","Western NY",8525,7800,725,152],
+  [2010,"Ontario","Western NY",1036,957,79,16],
+  [2010,"Orleans","Western NY",432,400,32,8],
+  [2010,"Seneca","Western NY",396,379,17,6],
+  [2010,"Wayne","Western NY",967,898,69,15],
+  [2010,"Wyoming","Western NY",394,373,21,5],
+  [2010,"Yates","Western NY",310,290,20,5],
+  [2010,"Nassau","Long Island",14200,13070,1130,191],
+  [2010,"Suffolk","Long Island",16802,15493,1309,227],
+  [2010,"Dutchess","Hudson Valley",2866,2676,190,43],
+  [2010,"Orange","Hudson Valley",4997,4675,322,65],
+  [2010,"Putnam","Hudson Valley",931,853,78,6],
+  [2010,"Rockland","Hudson Valley",4525,4247,278,66],
+  [2010,"Sullivan","Hudson Valley",829,745,84,21],
+  [2010,"Ulster","Hudson Valley",1692,1568,124,18],
+  [2010,"Westchester","Hudson Valley",11104,10146,958,170],
+  [2010,"Fulton","Hudson Valley",554,522,32,5],
+  [2010,"Herkimer","Central NY",635,592,43,11],
+  [2010,"Montgomery","Hudson Valley",585,538,47,8],
+  [2010,"Oneida","Central NY",2633,2442,191,32],
+  [2010,"Otsego","Central NY",515,491,24,3],
+  [2010,"Schoharie","Hudson Valley",286,266,20,4],
+  [2010,"Bronx","New York City",22385,20211,2174,424],
+  [2010,"Kings","New York City",41797,38281,3516,656],
+  [2010,"New York","New York City",19731,18023,1708,270],
+  [2010,"Queens","New York City",30484,27936,2548,444],
+  [2010,"Richmond","New York City",5604,5135,469,117],
+  [2010,"Clinton","Hudson Valley",839,776,63,19],
+  [2010,"Essex","Hudson Valley",337,316,21,6],
+  [2010,"Franklin","Hudson Valley",485,439,46,6],
+  [2010,"Hamilton","Hudson Valley",34,32,2,0],
+  [2010,"Jefferson","Central NY",2066,1934,132,31],
+  [2010,"Lewis","Central NY",307,283,24,3],
+  [2010,"St Lawrence","Central NY",1178,1091,87,16],
+  [2010,"Broome","Central NY",2046,1872,174,40],
+  [2010,"Chemung","Central NY",1000,912,88,12],
+  [2010,"Chenango","Central NY",467,435,32,5],
+  [2010,"Delaware","Hudson Valley",459,432,27,6],
+  [2010,"Schuyler","Central NY",168,156,12,2],
+  [2010,"Steuben","Central NY",1173,1101,72,15],
+  [2010,"Tioga","Central NY",440,408,32,5],
+  [2010,"Tompkins","Central NY",830,766,64,17],
+  [2010,"Allegany","Western NY",494,457,37,4],
+  [2010,"Cattaraugus","Western NY",887,826,61,12],
+  [2010,"Chautauqua","Western NY",1349,1228,121,22],
+  [2010,"Erie","Western NY",9751,8962,789,162],
+  [2010,"Niagara","Western NY",2214,2035,179,25],
+  [2009,"Albany","Hudson Valley",3176,2895,281,60],
+  [2009,"Columbia","Hudson Valley",562,509,53,11],
+  [2009,"Greene","Hudson Valley",442,398,44,8],
+  [2009,"Rensselaer","Hudson Valley",1771,1656,115,25],
+  [2009,"Saratoga","Hudson Valley",2222,2065,157,33],
+  [2009,"Schenectady","Hudson Valley",1798,1637,161,31],
+  [2009,"Warren","Hudson Valley",639,591,48,3],
+  [2009,"Washington","Hudson Valley",625,582,43,6],
+  [2009,"Cayuga","Central NY",811,771,40,11],
+  [2009,"Cortland","Central NY",556,504,52,16],
+  [2009,"Madison","Central NY",680,641,39,8],
+  [2009,"Onondaga","Central NY",5477,5025,452,95],
+  [2009,"Oswego","Central NY",1406,1331,75,16],
+  [2009,"Genesee","Western NY",657,613,44,8],
+  [2009,"Livingston","Western NY",574,541,33,4],
+  [2009,"Monroe","Western NY",8580,7840,740,157],
+  [2009,"Ontario","Western NY",1051,992,59,9],
+  [2009,"Orleans","Western NY",439,404,35,6],
+  [2009,"Seneca","Western NY",370,351,19,2],
+  [2009,"Wayne","Western NY",1065,988,77,12],
+  [2009,"Wyoming","Western NY",418,399,19,3],
+  [2009,"Yates","Western NY",353,335,18,1],
+  [2009,"Nassau","Long Island",14681,13437,1244,202],
+  [2009,"Suffolk","Long Island",17181,15857,1324,224],
+  [2009,"Dutchess","Hudson Valley",2915,2708,207,45],
+  [2009,"Orange","Hudson Valley",5060,4703,357,62],
+  [2009,"Putnam","Hudson Valley",894,834,60,14],
+  [2009,"Rockland","Hudson Valley",4559,4263,296,58],
+  [2009,"Sullivan","Hudson Valley",861,788,73,16],
+  [2009,"Ulster","Hudson Valley",1706,1592,114,23],
+  [2009,"Westchester","Hudson Valley",11130,10200,930,184],
+  [2009,"Fulton","Hudson Valley",556,521,35,6],
+  [2009,"Herkimer","Central NY",668,616,52,13],
+  [2009,"Montgomery","Hudson Valley",606,572,34,7],
+  [2009,"Oneida","Central NY",2632,2426,206,44],
+  [2009,"Otsego","Central NY",484,451,33,10],
+  [2009,"Schoharie","Hudson Valley",279,260,19,3],
+  [2009,"Bronx","New York City",22999,20722,2277,447],
+  [2009,"Kings","New York City",42099,38542,3557,650],
+  [2009,"New York","New York City",20166,18369,1797,280],
+  [2009,"Queens","New York City",30748,28273,2475,456],
+  [2009,"Richmond","New York City",5728,5248,480,90],
+  [2009,"Clinton","Hudson Valley",786,729,57,4],
+  [2009,"Essex","Hudson Valley",350,315,35,6],
+  [2009,"Franklin","Hudson Valley",513,480,33,1],
+  [2009,"Hamilton","Hudson Valley",40,37,3,0],
+  [2009,"Jefferson","Central NY",1992,1853,139,33],
+  [2009,"Lewis","Central NY",342,327,15,2],
+  [2009,"St Lawrence","Central NY",1162,1066,96,14],
+  [2009,"Broome","Central NY",2057,1915,142,33],
+  [2009,"Chemung","Central NY",977,879,98,20],
+  [2009,"Chenango","Central NY",523,493,30,4],
+  [2009,"Delaware","Hudson Valley",458,418,40,7],
+  [2009,"Schuyler","Central NY",158,145,13,1],
+  [2009,"Steuben","Central NY",1116,1039,77,19],
+  [2009,"Tioga","Central NY",429,396,33,4],
+  [2009,"Tompkins","Central NY",917,860,57,10],
+  [2009,"Allegany","Western NY",518,479,39,4],
+  [2009,"Cattaraugus","Western NY",883,814,69,15],
+  [2009,"Chautauqua","Western NY",1419,1308,111,14],
+  [2009,"Erie","Western NY",9791,9019,772,169],
+  [2009,"Niagara","Western NY",2305,2112,193,44],
+  [2008,"Albany","Hudson Valley",3139,2870,269,61],
+  [2008,"Columbia","Hudson Valley",613,562,51,8],
+  [2008,"Greene","Hudson Valley",439,398,41,1],
+  [2008,"Rensselaer","Hudson Valley",1721,1589,132,32],
+  [2008,"Saratoga","Hudson Valley",2295,2142,153,33],
+  [2008,"Schenectady","Hudson Valley",1802,1644,158,22],
+  [2008,"Warren","Hudson Valley",658,603,55,6],
+  [2008,"Washington","Hudson Valley",662,619,43,9],
+  [2008,"Cayuga","Central NY",834,776,58,15],
+  [2008,"Cortland","Central NY",574,540,34,5],
+  [2008,"Madison","Central NY",698,660,38,5],
+  [2008,"Onondaga","Central NY",5552,5140,412,83],
+  [2008,"Oswego","Central NY",1376,1294,82,15],
+  [2008,"Genesee","Western NY",628,597,31,8],
+  [2008,"Livingston","Western NY",589,557,32,10],
+  [2008,"Monroe","Western NY",8705,8003,702,150],
+  [2008,"Ontario","Western NY",1111,1052,59,7],
+  [2008,"Orleans","Western NY",417,387,30,5],
+  [2008,"Seneca","Western NY",381,370,11,2],
+  [2008,"Wayne","Western NY",1095,1014,81,17],
+  [2008,"Wyoming","Western NY",394,376,18,5],
+  [2008,"Yates","Western NY",289,281,8,5],
+  [2008,"Nassau","Long Island",15032,13849,1183,221],
+  [2008,"Suffolk","Long Island",17981,16691,1290,219],
+  [2008,"Dutchess","Hudson Valley",2918,2707,211,41],
+  [2008,"Orange","Hudson Valley",5406,5002,404,51],
+  [2008,"Putnam","Hudson Valley",983,891,92,17],
+  [2008,"Rockland","Hudson Valley",4953,4610,343,79],
+  [2008,"Sullivan","Hudson Valley",958,869,89,11],
+  [2008,"Ulster","Hudson Valley",1799,1658,141,26],
+  [2008,"Westchester","Hudson Valley",11481,10461,1020,182],
+  [2008,"Fulton","Hudson Valley",632,565,67,13],
+  [2008,"Herkimer","Central NY",645,600,45,11],
+  [2008,"Montgomery","Hudson Valley",641,596,45,6],
+  [2008,"Oneida","Central NY",2617,2412,205,41],
+  [2008,"Otsego","Central NY",550,515,35,3],
+  [2008,"Schoharie","Hudson Valley",327,299,28,2],
+  [2008,"Bronx","New York City",23011,20702,2309,424],
+  [2008,"Kings","New York City",41619,38029,3590,719],
+  [2008,"New York","New York City",20303,18533,1770,265],
+  [2008,"Queens","New York City",31063,28494,2569,437],
+  [2008,"Richmond","New York City",5753,5272,481,80],
+  [2008,"Clinton","Hudson Valley",767,721,46,10],
+  [2008,"Essex","Hudson Valley",375,335,40,3],
+  [2008,"Franklin","Hudson Valley",531,504,27,4],
+  [2008,"Hamilton","Hudson Valley",34,32,2,0],
+  [2008,"Jefferson","Central NY",2124,1968,156,31],
+  [2008,"Lewis","Central NY",330,311,19,1],
+  [2008,"St Lawrence","Central NY",1215,1124,91,7],
+  [2008,"Broome","Central NY",2073,1914,159,30],
+  [2008,"Chemung","Central NY",957,881,76,9],
+  [2008,"Chenango","Central NY",540,500,40,9],
+  [2008,"Delaware","Hudson Valley",451,419,32,10],
+  [2008,"Schuyler","Central NY",182,167,15,4],
+  [2008,"Steuben","Central NY",1035,971,64,12],
+  [2008,"Tioga","Central NY",507,472,35,8],
+  [2008,"Tompkins","Central NY",885,824,61,10],
+  [2008,"Allegany","Western NY",518,484,34,8],
+  [2008,"Cattaraugus","Western NY",935,875,60,12],
+  [2008,"Chautauqua","Western NY",1373,1253,120,22],
+  [2008,"Erie","Western NY",9673,8876,797,159],
+  [2008,"Niagara","Western NY",2263,2081,182,32]
+];
+
+/* ══════════════════
+   CONFIG
+══════════════════ */
+const RC={
+  "Hudson Valley":"#6B5BFF",
+  "Central NY":"#d9e1e2",
+  "Long Island":"#A78BFA",
+  "New York City":"#9333EA",
+  "Western NY":"#312E81"
+};
+const REGIONS=Object.keys(RC);
+const SZ=210,CX=105,CY=105;
+const OR=103,Or=78; // outer ring (county)
+const IR=74, Ir=50; // inner ring (region)
+const GAP=0.012;    // radians gap between slices
+
+/* ══════════════════
+   YEAR SELECTOR
+══════════════════ */
+const ALL_YEARS=[...new Set(RAW.map(d=>d[0]))].sort((a,b)=>b-a);
+const yrSel=document.getElementById('yrSel');
+ALL_YEARS.forEach(y=>{ const o=document.createElement('option'); o.value=y; o.textContent=y; yrSel.appendChild(o); });
+yrSel.value=ALL_YEARS[0];
+
+/* ══════════════════
+   LEGEND
+══════════════════ */
+const legEl=document.getElementById('legItems');
+REGIONS.forEach(r=>{
+  legEl.innerHTML+=`<div class="li"><div class="ls" style="background:${RC[r]}"></div><span>${r}</span></div>`;
+});
+
+/* ══════════════════
+   HELPERS
+══════════════════ */
+const pct=(n,d)=>d>0?(n/d*100):0;
+const fmt=v=>v.toFixed(1)+'%';
+
+function lighten(hex,t){
+  // Purple theme tinting: keep counties within their region color family.
+  hex=hex.replace('#','');
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+  const target={r:246,g:244,b:255}; // soft lavender background
+  const nr=Math.round(r+(target.r-r)*t);
+  const ng=Math.round(g+(target.g-g)*t);
+  const nb=Math.round(b+(target.b-b)*t);
+  return '#'+[nr,ng,nb].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+function getRows(yr){ return RAW.filter(d=>d[0]===yr); }
+
+function summarizeRows(rows){
+  let kn=0,nm=0,lw=0,vl=0;
+  rows.forEach(d=>{ kn+=d[3]; nm+=d[4]; lw+=d[5]; vl+=d[6]; });
+  return {known:kn,norm:nm,low:lw,vlow:vl,pN:pct(nm,kn),pL:pct(lw,kn),pV:pct(vl,kn)};
+}
+
+function statewide(yr){
+  return summarizeRows(getRows(yr));
+}
+
+function countywide(yr,county){
+  return summarizeRows(getRows(yr).filter(d=>d[1]===county));
+}
+
+function byRegion(yr){
+  const m={};
+  getRows(yr).forEach(([y,county,region,known,norm,low,vlow])=>{
+    if(!m[region]) m[region]={known:0,norm:0,low:0,vlow:0};
+    m[region].known+=known; m[region].norm+=norm;
+    m[region].low+=low;   m[region].vlow+=vlow;
+  });
+  return m;
+}
+
+/* ══════════════════
+   DONUT DRAWING
+══════════════════ */
+function drawRing(ctx,segs,R,r){
+  const total=segs.reduce((a,s)=>a+s.value,0);
+  if(!total) return;
+  let a=-Math.PI/2;
+  segs.forEach(seg=>{
+    const rawSpan=(seg.value/total)*Math.PI*2;
+    const span=Math.max(0,rawSpan-GAP);
+    seg._start=a; seg._span=span; seg._mid=a+span/2;
+    if(span>0){
+      ctx.beginPath();
+      ctx.arc(CX,CY,R,a,a+span);
+      ctx.arc(CX,CY,r,a+span,a,true);
+      ctx.closePath();
+      ctx.fillStyle=seg.color;
+      ctx.fill();
+    }
+    a+=rawSpan;
+  });
+}
+
+/* ══════════════════
+   TOOLTIP HIT TEST  ← KEY FIX
+══════════════════ */
+const TIP=document.getElementById('tip');
+
+function hitTest(canvas,ex,ey,R,r){
+  const rect=canvas.getBoundingClientRect();
+  // scale for device pixel ratio
+  const scaleX=canvas.width/rect.width;
+  const scaleY=canvas.height/rect.height;
+  const mx=(ex-rect.left)*scaleX-CX;
+  const my=(ey-rect.top)*scaleY-CY;
+  const dist=Math.sqrt(mx*mx+my*my);
+  if(dist<r||dist>R) return null;
+  // angle from -π/2 (12 o'clock) going clockwise
+  let ang=Math.atan2(my,mx)+Math.PI/2;
+  if(ang<0) ang+=Math.PI*2;
+  const segs=canvas._segs||[];
+  for(const seg of segs){
+    const s=(seg._start+Math.PI/2+Math.PI*2)%(Math.PI*2);
+    const e=s+seg._span;
+    if(seg._span>0 && ang>=s && ang<=e) return seg;
+    // wrap-around edge case
+    if(e>Math.PI*2 && ang<=e-Math.PI*2) return seg;
+  }
+  return null;
+}
+
+function showTip(e,seg,label){
+  const rate = Number.isFinite(seg.pct) ? fmt(seg.pct) : '—';
+  const metricCount = (seg.metricCount ?? 0).toLocaleString();
+  const knownBirths = (seg.known ?? seg.value ?? 0).toLocaleString();
+  const shareKnown = Number.isFinite(seg.shareKnown) ? fmt(seg.shareKnown) : '—';
+  const shareMetric = Number.isFinite(seg.shareMetric) ? fmt(seg.shareMetric) : '—';
+  const regionLine = seg.level === 'County'
+    ? `<div class="row"><span>Region</span><span>${seg.region}</span></div>`
+    : `<div class="row"><span>Level</span><span>Region</span></div>`;
+  const countyLine = seg.level === 'County'
+    ? `<div class="row"><span>County</span><span>${seg.name}</span></div>`
+    : `<div class="row"><span>Region</span><span>${seg.name}</span></div>`;
+
+  TIP.innerHTML=`
+    <div class="tn">${seg.metricLabel || label}</div>
+    ${countyLine}
+    ${regionLine}
+    <div class="row"><span>Rate</span><span>${rate}</span></div>
+    <div class="row"><span>${seg.metricLabel || 'Metric'} Births</span><span>${metricCount}</span></div>
+    <div class="row"><span>Known Births</span><span>${knownBirths}</span></div>
+    <div class="row"><span>% of NYS Known Births</span><span>${shareKnown}</span></div>
+    <div class="row"><span>% of NYS ${seg.metricLabel || 'Metric'} Births</span><span>${shareMetric}</span></div>
+    <div class="tr">Click county slices to update the trend line.</div>`;
+  TIP.style.left=(e.clientX+16)+'px';
+  TIP.style.top=(e.clientY-14)+'px';
+  TIP.classList.add('on');
+}
+
+function attach(outerCv,innerCv,metricLabel){
+  function onMove(e){
+    let seg=hitTest(outerCv,e.clientX,e.clientY,OR,Or);
+    let lbl=metricLabel+' · County';
+    if(!seg){ seg=hitTest(innerCv,e.clientX,e.clientY,IR,Ir); lbl=metricLabel+' · Region'; }
+    if(seg) showTip(e,seg,lbl);
+    else TIP.classList.remove('on');
+  }
+  function onClick(e){
+    const seg=hitTest(outerCv,e.clientX,e.clientY,OR,Or);
+    if(seg){ selectedCounty=seg.name; renderTrends(); }
+  }
+  function onLeave(){ TIP.classList.remove('on'); }
+  const wrap=outerCv.parentElement;
+  wrap.style.cursor='crosshair';
+  wrap.addEventListener('mousemove',onMove);
+  wrap.addEventListener('click',onClick);
+  wrap.addEventListener('mouseleave',onLeave);
+}
+
+/* ══════════════════
+   TREND LINE
+══════════════════ */
+
+let selectedCounty=null;
+function scopeName(){ return selectedCounty ? selectedCounty + ' County' : 'Statewide'; }
+function scopeSummary(yr){ return selectedCounty ? countywide(yr, selectedCounty) : statewide(yr); }
+function getTrendSeries(key){
+  return TREND_YEARS.map(y=>scopeSummary(y)[key]);
+}
+function getTrendCounts(key){
+  return TREND_YEARS.map(y=>scopeSummary(y)[key]);
+}
+function updateScopeLabel(){
+  const el=document.getElementById('scopeLabel');
+  if(el) el.textContent=scopeName();
+  ['trn','trl','trv'].forEach(id=>{
+    const title=document.getElementById(id+'-title');
+    if(title) title.textContent=scopeName() + ' trend 2008–2023';
+  });
+}
+function renderTrends(){
+  updateScopeLabel();
+  drawTrend('trn',getTrendSeries('pN'),TREND_YEARS,'#5B6FF5','trn-l','trn-r','Normal Birth Weight',getTrendCounts('norm'));
+  drawTrend('trl',getTrendSeries('pL'),TREND_YEARS,'#7C6FF2','trl-l','trl-r','Low Birth Weight',getTrendCounts('low'));
+  drawTrend('trv',getTrendSeries('pV'),TREND_YEARS,'#B06CFF','trv-l','trv-r','Very Low Birth Weight',getTrendCounts('vlow'));
+}
+function drawTrend(canvasId,values,years,color,minId,maxId,metricName='Rate',counts=[]){
+  const cv=document.getElementById(canvasId);
+  const W=cv.parentElement.clientWidth||220;
+  const H=48;
+  cv.width=W; cv.height=H;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const mn=Math.min(...values), mx=Math.max(...values);
+  const range=mx-mn||0.5;
+  const pad=8;
+  const pts=values.map((v,i)=>({
+    x:pad+(i/(values.length-1))*(W-2*pad),
+    y:H-pad-((v-mn)/range)*(H-2*pad),
+    value:v, year:years[i], count:counts[i]||0
+  }));
+  // fill
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,H);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H);
+  ctx.closePath();
+  ctx.fillStyle=color+'28';
+  ctx.fill();
+  // line
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle=color;
+  ctx.lineWidth=2;
+  ctx.lineJoin='round';
+  ctx.lineCap='round';
+  ctx.stroke();
+  // dots
+  pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fillStyle=color; ctx.fill(); });
+  // labels
+  if(minId) document.getElementById(minId).textContent=years[0];
+  if(maxId) document.getElementById(maxId).textContent=years[years.length-1];
+
+  cv._trendPts=pts;
+  cv._trendMetric=metricName;
+  cv.style.cursor='crosshair';
+  cv.onmousemove=function(e){
+    const rect=cv.getBoundingClientRect();
+    const scaleX=cv.width/rect.width;
+    const mx=(e.clientX-rect.left)*scaleX;
+    let nearest=pts[0];
+    let best=Math.abs(mx-nearest.x);
+    pts.forEach(p=>{ const d=Math.abs(mx-p.x); if(d<best){best=d; nearest=p;} });
+    if(best>18){ TIP.classList.remove('on'); return; }
+    TIP.innerHTML=`
+      <div class="tn">${scopeName()} · ${metricName}</div>
+      <div class="tp">${fmt(nearest.value)}</div>
+      <div class="ts">Year: ${nearest.year}</div>
+      <div class="tr">${nearest.count.toLocaleString()} births in metric</div>`;
+    TIP.style.left=(e.clientX+16)+'px';
+    TIP.style.top=(e.clientY-14)+'px';
+    TIP.classList.add('on');
+  };
+  cv.onmouseleave=function(){ TIP.classList.remove('on'); };
+}
+
+
+
+/* ══════════════════
+   ANALYTIC SECTIONS
+══════════════════ */
+function pp(v){ return (v>=0?'+':'') + v.toFixed(2) + ' pp'; }
+function countyMetrics(yr){
+  return getRows(yr).map(([y,county,region,known,norm,low,vlow])=>({
+    year:y, county, region, known, norm, low, vlow,
+    pN:pct(norm,known), pL:pct(low,known), pV:pct(vlow,known)
+  }));
+}
+function riskFlag(diff){
+  if(diff>=1.0) return ['High','flag-high'];
+  if(diff>=0.3) return ['Moderate','flag-mod'];
+  return ['Near Avg','flag-near'];
+}
+function renderRegionalCards(yr){
+  const el=document.getElementById('regionalCards');
+  if(!el) return;
+  const regMap=byRegion(yr);
+  const sw=statewide(yr);
+  el.innerHTML='';
+  REGIONS.forEach(reg=>{
+    const r=regMap[reg];
+    if(!r) return;
+    const pL=pct(r.low,r.known), pV=pct(r.vlow,r.known), diff=pL-sw.pL;
+    el.innerHTML += `
+      <div class="region-card" style="border-top-color:${RC[reg]}">
+        <div class="rname">${reg}</div>
+        <div class="rval">${fmt(pL)}</div>
+        <div class="rmeta">
+          LBW rate · ${pp(diff)} vs NYS<br>
+          VLBW: ${fmt(pV)} · Births: ${r.known.toLocaleString()}
+        </div>
+      </div>`;
+  });
+}
+function renderRiskTable(yr){
+  const el=document.getElementById('riskTable');
+  if(!el) return;
+  const sw=statewide(yr);
+  const rows=countyMetrics(yr)
+    .map(d=>({...d, diff:d.pL-sw.pL}))
+    .filter(d=>d.diff>0)
+    .sort((a,b)=>b.diff-a.diff)
+    .slice(0,12);
+  el.innerHTML = rows.map(d=>{
+    const [label,cls]=riskFlag(d.diff);
+    return `<tr>
+      <td>${d.county}</td>
+      <td>${d.region}</td>
+      <td class="num">${fmt(d.pL)}</td>
+      <td class="num">${fmt(sw.pL)}</td>
+      <td class="num">${pp(d.diff)}</td>
+      <td><span class="flag ${cls}">${label}</span></td>
+    </tr>`;
+  }).join('');
+}
+function renderChangeTables(yr){
+  const imp=document.getElementById('improvedTable');
+  const wor=document.getElementById('worseningTable');
+  if(!imp || !wor) return;
+  const baseYear=2008;
+  const base=new Map(countyMetrics(baseYear).map(d=>[d.county,d]));
+  const current=countyMetrics(yr)
+    .filter(d=>base.has(d.county))
+    .map(d=>({...d, change:d.pL-base.get(d.county).pL}))
+    .filter(d=>Number.isFinite(d.change));
+
+  const improved=current.slice().sort((a,b)=>a.change-b.change).slice(0,10);
+  const worsening=current.slice().sort((a,b)=>b.change-a.change).slice(0,10);
+
+  imp.innerHTML=improved.map(d=>`<tr><td>${d.county}</td><td>${d.region}</td><td class="num">${pp(d.change)}</td></tr>`).join('');
+  wor.innerHTML=worsening.map(d=>`<tr><td>${d.county}</td><td>${d.region}</td><td class="num">${pp(d.change)}</td></tr>`).join('');
+}
+function renderKeyFindings(yr){
+  const el=document.getElementById('keyFindings');
+  if(!el) return;
+  const sw=statewide(yr);
+  const counties=countyMetrics(yr).map(d=>({...d,diff:d.pL-sw.pL}));
+  const above=counties.filter(d=>d.diff>0).length;
+  const highest=counties.slice().sort((a,b)=>b.pL-a.pL)[0];
+  const lowest=counties.slice().sort((a,b)=>a.pL-b.pL)[0];
+
+  const baseYear=2008;
+  const base=new Map(countyMetrics(baseYear).map(d=>[d.county,d]));
+  const changes=counties.filter(d=>base.has(d.county)).map(d=>({...d,change:d.pL-base.get(d.county).pL}));
+  const best=changes.slice().sort((a,b)=>a.change-b.change)[0];
+  const worst=changes.slice().sort((a,b)=>b.change-a.change)[0];
+
+  const regMap=byRegion(yr);
+  const regRows=REGIONS.map(reg=>{
+    const r=regMap[reg]; return {region:reg, pL:r?pct(r.low,r.known):0, known:r?r.known:0};
+  }).sort((a,b)=>b.pL-a.pL);
+  const topReg=regRows[0], lowReg=regRows[regRows.length-1];
+
+  el.innerHTML = `
+    <li>Statewide low birth weight rate in ${yr} was <strong>${fmt(sw.pL)}</strong>, based on ${sw.known.toLocaleString()} known birth weight records.</li>
+    <li><strong>${above}</strong> counties were above the statewide low birth weight average.</li>
+    <li>The highest county rate was observed in <strong>${highest.county}</strong> (${fmt(highest.pL)}); the lowest was <strong>${lowest.county}</strong> (${fmt(lowest.pL)}).</li>
+    <li>At the regional level, <strong>${topReg.region}</strong> had the highest LBW rate (${fmt(topReg.pL)}), while <strong>${lowReg.region}</strong> had the lowest (${fmt(lowReg.pL)}).</li>
+    <li>Compared with 2008, <strong>${best.county}</strong> showed the largest improvement (${pp(best.change)}), while <strong>${worst.county}</strong> showed the largest increase (${pp(worst.change)}).</li>`;
+}
+
+const NY_FIPS_TO_COUNTY = {"36001": "Albany", "36003": "Allegany", "36005": "Bronx", "36007": "Broome", "36009": "Cattaraugus", "36011": "Cayuga", "36013": "Chautauqua", "36015": "Chemung", "36017": "Chenango", "36019": "Clinton", "36021": "Columbia", "36023": "Cortland", "36025": "Delaware", "36027": "Dutchess", "36029": "Erie", "36031": "Essex", "36033": "Franklin", "36035": "Fulton", "36037": "Genesee", "36039": "Greene", "36041": "Hamilton", "36043": "Herkimer", "36045": "Jefferson", "36047": "Kings", "36049": "Lewis", "36051": "Livingston", "36053": "Madison", "36055": "Monroe", "36057": "Montgomery", "36059": "Nassau", "36061": "New York", "36063": "Niagara", "36065": "Oneida", "36067": "Onondaga", "36069": "Ontario", "36071": "Orange", "36073": "Orleans", "36075": "Oswego", "36077": "Otsego", "36079": "Putnam", "36081": "Queens", "36083": "Rensselaer", "36085": "Richmond", "36087": "Rockland", "36089": "St Lawrence", "36091": "Saratoga", "36093": "Schenectady", "36095": "Schoharie", "36097": "Schuyler", "36099": "Seneca", "36101": "Steuben", "36103": "Suffolk", "36105": "Sullivan", "36107": "Tioga", "36109": "Tompkins", "36111": "Ulster", "36113": "Warren", "36115": "Washington", "36117": "Wayne", "36119": "Westchester", "36121": "Wyoming", "36123": "Yates"};
+let NY_COUNTY_FEATURES=null;
+
+function metricLabel(metric){
+  return metric==='pN' ? 'Normal Birth Weight' : (metric==='pV' ? 'Very Low Birth Weight' : 'Low Birth Weight');
+}
+function metricColor(metric){
+  return metric==='pN' ? '#5B6FF5' : (metric==='pV' ? '#9333EA' : '#7C6FF2');
+}
+async function loadNYCountyFeatures(){
+  if(NY_COUNTY_FEATURES) return NY_COUNTY_FEATURES;
+  if(typeof d3==='undefined' || typeof topojson==='undefined') return null;
+  const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json');
+  const all = topojson.feature(us, us.objects.counties).features;
+  NY_COUNTY_FEATURES = all.filter(f => String(f.id).padStart(5,'0').startsWith('36'));
+  return NY_COUNTY_FEATURES;
+}
+function countyDataMapForYear(yr){
+  const m = new Map();
+  countyMetrics(yr).forEach(d=>m.set(d.county, d));
+  return m;
+}
+async function renderCountyMap(){
+  const svgEl=document.getElementById('regionMap');
+  const metricSel=document.getElementById('mapMetric');
+  const table=document.getElementById('mapRegionTable');
+  if(!svgEl || !metricSel || !table) return;
+
+  const yr=+yrSel.value;
+  const metric=metricSel.value;
+  const sw=statewide(yr);
+  const swVal=sw[metric];
+  const dataMap=countyDataMapForYear(yr);
+
+  const regMap=byRegion(yr);
+  const regRows=REGIONS.map(reg=>{
+    const r=regMap[reg];
+    const pN=pct(r.norm,r.known), pL=pct(r.low,r.known), pV=pct(r.vlow,r.known);
+    const val={pN,pL,pV}[metric];
+    return {region:reg, value:val, diff:val-swVal};
+  }).sort((a,b)=>b.value-a.value);
+
+  table.innerHTML=regRows.map(r=>`
+    <tr><td>${r.region}</td><td class="num">${fmt(r.value)}</td><td class="num">${pp(r.diff)}</td></tr>
+  `).join('');
+
+  const base=metricColor(metric);
+  document.getElementById('mapGrad')?.style.setProperty('background',`linear-gradient(90deg,#EAF2FB,${base})`);
+
+  if(typeof d3==='undefined' || typeof topojson==='undefined'){
+    svgEl.innerHTML='<text x="380" y="195" text-anchor="middle" class="map-status">Map library could not load. Check internet connection.</text>';
+    return;
+  }
+
+  let features;
+  try {
+    features=await loadNYCountyFeatures();
+  } catch(e) {
+    svgEl.innerHTML='<text x="380" y="195" text-anchor="middle" class="map-status">County map could not load. Internet access is needed for the boundary file.</text>';
+    return;
+  }
+
+  const values=[];
+  features.forEach(f=>{
+    const fips=String(f.id).padStart(5,'0');
+    const county=NY_FIPS_TO_COUNTY[fips];
+    const d=dataMap.get(county);
+    if(d) values.push(d[metric]);
+  });
+  const mn=Math.min(...values), mx=Math.max(...values);
+  const color=d3.scaleLinear().domain([mn,mx]).range(['#F3F0FF',base]);
+
+  const svg=d3.select(svgEl);
+  svg.selectAll('*').remove();
+  const fc={type:'FeatureCollection',features};
+  const projection=d3.geoAlbers().rotate([76,0]).fitSize([735,355],fc);
+  const path=d3.geoPath(projection);
+
+  const g=svg.append('g').attr('transform','translate(10,16)');
+  g.selectAll('path')
+    .data(features)
+    .join('path')
+    .attr('class','county-shape')
+    .attr('d',path)
+    .attr('fill',f=>{
+      const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+      const d=dataMap.get(county);
+      return d ? color(d[metric]) : '#E8E4F8';
+    })
+    .on('mousemove',function(event,f){
+      const fips=String(f.id).padStart(5,'0');
+      const county=NY_FIPS_TO_COUNTY[fips] || fips;
+      const d=dataMap.get(county);
+      if(!d) return;
+      const val=d[metric];
+      const diff=val-swVal;
+      const metricCount = metric==='pN' ? d.norm : (metric==='pL' ? d.low : d.vlow);
+      TIP.innerHTML=`
+        <div class="tn">${county} County</div>
+        <div class="row"><span>Region</span><span>${d.region}</span></div>
+        <div class="row"><span>Metric</span><span>${metricLabel(metric)}</span></div>
+        <div class="row"><span>Rate</span><span>${fmt(val)}</span></div>
+        <div class="row"><span>NYS Avg</span><span>${fmt(swVal)}</span></div>
+        <div class="row"><span>Diff. vs NYS</span><span>${pp(diff)}</span></div>
+        <div class="row"><span>Metric Births</span><span>${metricCount.toLocaleString()}</span></div>
+        <div class="row"><span>Known Births</span><span>${d.known.toLocaleString()}</span></div>
+        <div class="tr">Click county to update the trend line.</div>`;
+      TIP.style.left=(event.clientX+16)+'px';
+      TIP.style.top=(event.clientY-14)+'px';
+      TIP.classList.add('on');
+    })
+    .on('mouseleave',()=>TIP.classList.remove('on'))
+    .on('click',function(event,f){
+      const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+      if(county){ selectedCounty=county; renderTrends(); }
+    });
+
+  svg.append('text').attr('x',18).attr('y',378).attr('fill','#6B7280').attr('font-size','11')
+     .text(`Metric: ${metricLabel(metric)} · Year: ${yr} · darker = higher rate`);
+}
+
+
+async function renderMiniCountyMaps(){
+  const configs=[
+    {id:'miniMapN', metric:'pN', countKey:'norm', label:'Normal Birth Weight', color:'#5B6FF5'},
+    {id:'miniMapL', metric:'pL', countKey:'low', label:'Low Birth Weight', color:'#7C6FF2'},
+    {id:'miniMapV', metric:'pV', countKey:'vlow', label:'Very Low Birth Weight', color:'#9333EA'}
+  ];
+  if(typeof d3==='undefined' || typeof topojson==='undefined') return;
+  let features;
+  try{ features=await loadNYCountyFeatures(); }catch(e){ return; }
+  const yr=+yrSel.value;
+  const dataMap=countyDataMapForYear(yr);
+  const sw=statewide(yr);
+  const fc={type:'FeatureCollection',features};
+
+  configs.forEach(cfg=>{
+    const svgEl=document.getElementById(cfg.id);
+    if(!svgEl) return;
+    const values=[];
+    features.forEach(f=>{
+      const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+      const d=dataMap.get(county);
+      if(d) values.push(d[cfg.metric]);
+    });
+    const mn=Math.min(...values), mx=Math.max(...values);
+    const color=d3.scaleLinear().domain([mn,mx]).range(['#F3F0FF',cfg.color]);
+
+    const svg=d3.select(svgEl);
+    svg.selectAll('*').remove();
+    const projection=d3.geoAlbers().rotate([76,0]).fitSize([500,270],fc);
+    const path=d3.geoPath(projection);
+    const g=svg.append('g').attr('transform','translate(10,12)');
+
+    g.selectAll('path')
+      .data(features)
+      .join('path')
+      .attr('class','mini-county')
+      .attr('d',path)
+      .attr('fill',f=>{
+        const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+        const d=dataMap.get(county);
+        return d ? color(d[cfg.metric]) : '#E8E4F8';
+      })
+      .on('mousemove',function(event,f){
+        const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+        const d=dataMap.get(county);
+        if(!d) return;
+        const val=d[cfg.metric];
+        const diff=val-sw[cfg.metric];
+        const metricCount=d[cfg.countKey] ?? 0;
+        TIP.innerHTML=`
+          <div class="tn">${county} County</div>
+          <div class="row"><span>Region</span><span>${d.region}</span></div>
+          <div class="row"><span>Metric</span><span>${cfg.label}</span></div>
+          <div class="row"><span>Rate</span><span>${fmt(val)}</span></div>
+          <div class="row"><span>NYS Avg</span><span>${fmt(sw[cfg.metric])}</span></div>
+          <div class="row"><span>Diff. vs NYS</span><span>${pp(diff)}</span></div>
+          <div class="row"><span>Metric Births</span><span>${metricCount.toLocaleString()}</span></div>
+          <div class="row"><span>Known Births</span><span>${d.known.toLocaleString()}</span></div>
+          <div class="tr">Click county to update the trend line.</div>`;
+        TIP.style.left=(event.clientX+16)+'px';
+        TIP.style.top=(event.clientY-14)+'px';
+        TIP.classList.add('on');
+      })
+      .on('mouseleave',()=>TIP.classList.remove('on'))
+      .on('click',function(event,f){
+        const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+        if(county){ selectedCounty=county; renderTrends(); }
+      });
+
+    svg.append('text')
+      .attr("x",10).attr("y",280)
+      .attr('fill','#6E6A86').attr('font-size','9')
+      .text(`${yr} · darker = higher rate`);
+  });
+}
+
+
+function regionMetricData(yr, metric){
+  const regMap = byRegion(yr);
+  const sw = statewide(yr);
+  return REGIONS.map(reg=>{
+    const r=regMap[reg];
+    const pN=pct(r.norm,r.known), pL=pct(r.low,r.known), pV=pct(r.vlow,r.known);
+    const value={pN,pL,pV}[metric];
+    return {region:reg, known:r.known, norm:r.norm, low:r.low, vlow:r.vlow, value, diff:value-sw[metric]};
+  });
+}
+function regionShapeDefs(){
+  return [
+    {region:"Western NY", d:"M20,125 L92,92 L145,106 L150,165 L60,178 L20,160 Z", label:[82,140]},
+    {region:"Central NY", d:"M145,96 L230,78 L255,132 L230,178 L150,165 Z", label:[202,132]},
+    {region:"Hudson Valley", d:"M245,54 L318,72 L330,154 L278,202 L230,178 L255,132 Z", label:[287,128]},
+    {region:"New York City", d:"M285,196 L318,190 L330,218 L296,230 Z", label:[308,211]},
+    {region:"Long Island", d:"M295,220 L355,210 L338,232 L288,236 Z", label:[324,228]}
+  ];
+}
+function fillScaleForRegion(values, color){
+  const mn=Math.min(...values), mx=Math.max(...values), range=mx-mn || 1;
+  return v=>{
+    const t=(v-mn)/range;
+    if(typeof blendHex === 'function') return blendHex('#F3F0FF', color, 0.25 + t*0.70);
+    return color;
+  };
+}
+function drawSingleRegionMap(svgId, metric, label, color){
+  const svg=document.getElementById(svgId);
+  if(!svg) return;
+  const yr=+yrSel.value;
+  const rows=regionMetricData(yr, metric);
+  const byReg=new Map(rows.map(d=>[d.region,d]));
+  const fill=fillScaleForRegion(rows.map(d=>d.value), color);
+  svg.innerHTML='';
+
+  regionShapeDefs().forEach(s=>{
+    const d=byReg.get(s.region);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',s.d);
+    path.setAttribute('class','region-shape');
+    path.setAttribute('fill',d?fill(d.value):'#E8E4F8');
+    svg.appendChild(path);
+
+    path.addEventListener('mousemove',e=>{
+      if(!d) return;
+      const metricCount = metric==='pN' ? d.norm : (metric==='pL' ? d.low : d.vlow);
+      TIP.innerHTML=`
+        <div class="tn">${d.region}</div>
+        <div class="row"><span>Metric</span><span>${label}</span></div>
+        <div class="row"><span>Rate</span><span>${fmt(d.value)}</span></div>
+        <div class="row"><span>Diff. vs NYS</span><span>${pp(d.diff)}</span></div>
+        <div class="row"><span>Metric Births</span><span>${metricCount.toLocaleString()}</span></div>
+        <div class="row"><span>Known Births</span><span>${d.known.toLocaleString()}</span></div>
+        <div class="tr">Region-level map for selected year.</div>`;
+      TIP.style.left=(e.clientX+16)+'px';
+      TIP.style.top=(e.clientY-14)+'px';
+      TIP.classList.add('on');
+    });
+    path.addEventListener('mouseleave',()=>TIP.classList.remove('on'));
+
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',s.label[0]); txt.setAttribute('y',s.label[1]);
+    txt.setAttribute('text-anchor','middle'); txt.setAttribute('class','region-label');
+    txt.textContent=s.region==="New York City" ? "NYC" : s.region.replace("Western NY","Western").replace("Central NY","Central").replace("Hudson Valley","Hudson").replace("Long Island","Long Island");
+    svg.appendChild(txt);
+
+    const val=document.createElementNS('http://www.w3.org/2000/svg','text');
+    val.setAttribute('x',s.label[0]); val.setAttribute('y',s.label[1]+14);
+    val.setAttribute('text-anchor','middle'); val.setAttribute('class','region-rate-label');
+    val.textContent=d?fmt(d.value):'—';
+    svg.appendChild(val);
+  });
+
+  const cap=document.createElementNS('http://www.w3.org/2000/svg','text');
+  cap.setAttribute('x',12); cap.setAttribute('y',242);
+  cap.setAttribute('fill','#6E6A86'); cap.setAttribute('font-size','10');
+  cap.textContent=`${yr} · darker = higher rate`;
+  svg.appendChild(cap);
+}
+function renderThreeRegionMaps(){
+  // replaced by renderDivergingBar — kept as no-op for compatibility
+}
+
+/* ══════════════════
+   DIVERGING BAR CHART
+══════════════════ */
+(function(){
+  /* Metric config */
+  const METRICS=[
+    {key:'pN', label:'Normal BW',   full:'Normal Birth Weight',   color:'#5B6FF5', isGoodHigh:true,  note:'Higher is better'},
+    {key:'pL', label:'Low BW',      full:'Low Birth Weight',      color:'#7C6FF2', isGoodHigh:false, note:'Lower is better'},
+    {key:'pV', label:'Very Low BW', full:'Very Low Birth Weight', color:'#9333EA', isGoodHigh:false, note:'Lower is better'}
+  ];
+
+  /* Wire up toggle buttons */
+  let activeMetrics=new Set(['pN','pL','pV']);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const btns=document.querySelectorAll('.dbt');
+    btns.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const m=btn.dataset.metric;
+        if(activeMetrics.has(m)){
+          if(activeMetrics.size===1) return; // keep at least one
+          activeMetrics.delete(m); btn.classList.remove('active');
+        } else {
+          activeMetrics.add(m); btn.classList.add('active');
+        }
+        renderDivergingBar();
+      });
+    });
+    /* Legend */
+    const leg=document.getElementById('divbarLegend');
+    if(leg) leg.innerHTML=METRICS.map(m=>
+      `<div class="db-leg-item"><div class="db-leg-dot" style="background:${m.color}"></div>${m.label}</div>`
+    ).join('');
+  });
+
+  window.renderDivergingBar=function(){
+    const svgEl=document.getElementById('divbarChart');
+    if(!svgEl||typeof d3==='undefined') return;
+
+    const yr=+yrSel.value;
+    const regMap=byRegion(yr);
+    const sw=statewide(yr);
+
+    /* Build data: for each region × active metric → diff from NYS */
+    const nysVals={pN:sw.pN, pL:pct(sw.low,sw.known), pV:sw.pV};
+
+    const activeList=METRICS.filter(m=>activeMetrics.has(m.key));
+
+    /* rows: one per Region */
+    const rows=REGIONS.map(reg=>{
+      const r=regMap[reg];
+      const vals={};
+      METRICS.forEach(m=>{
+        const rate=m.key==='pN' ? pct(r.norm,r.known) :
+                   m.key==='pL' ? pct(r.low,r.known)  : pct(r.vlow,r.known);
+        vals[m.key]={rate, diff:rate-nysVals[m.key], nys:nysVals[m.key]};
+      });
+      return {region:reg, vals};
+    });
+
+    /* ── Layout ── */
+    const SVG_W=860, SVG_H=320;
+    const LABEL_W=110, RIGHT_PAD=20, TOP=48, BOTTOM=26;
+    const chartW=SVG_W-LABEL_W-RIGHT_PAD;
+    const chartH=SVG_H-TOP-BOTTOM;
+
+    const ROW_H=chartH/REGIONS.length;
+    const BAR_H=Math.min(18, ROW_H*0.28);
+    const BAR_GAP=2;
+    const BAR_BLOCK=(BAR_H+BAR_GAP)*activeList.length;
+
+    /* x scale: symmetric around zero */
+    const maxDiff=d3.max(rows.flatMap(r=>
+      activeList.map(m=>Math.abs(r.vals[m.key].diff))
+    ))||1;
+    const xExt=Math.ceil(maxDiff*10)/10 + 0.2; // add small padding
+    const xScale=d3.scaleLinear().domain([-xExt, xExt]).range([0, chartW]);
+    const xZero=xScale(0);
+
+    /* ── Render ── */
+    const svg=d3.select(svgEl);
+    svg.selectAll('*').remove();
+    svg.attr('viewBox',`0 0 ${SVG_W} ${SVG_H}`);
+
+    const g=svg.append('g').attr('transform',`translate(${LABEL_W},${TOP})`);
+
+    /* Background zones */
+    g.append('rect').attr('class','db-good-zone')
+      .attr('x',xZero).attr('y',0).attr('width',chartW-xZero).attr('height',chartH);
+    g.append('rect').attr('class','db-bad-zone')
+      .attr('x',0).attr('y',0).attr('width',xZero).attr('height',chartH);
+
+    /* Grid lines */
+    const ticks=xScale.ticks(8);
+    g.append('g').selectAll('line').data(ticks).join('line')
+      .attr('x1',d=>xScale(d)).attr('x2',d=>xScale(d))
+      .attr('y1',0).attr('y2',chartH)
+      .attr('stroke','#E8E4F8').attr('stroke-width',1);
+
+    /* X axis labels */
+    g.append('g').selectAll('text').data(ticks).join('text')
+      .attr('class','db-axis-label')
+      .attr('x',d=>xScale(d)).attr('y',chartH+14)
+      .attr('text-anchor','middle')
+      .text(d=>(d>=0?'+':'')+d.toFixed(1)+'pp');
+
+    /* Zero line */
+    g.append('line').attr('class','db-zero')
+      .attr('x1',xZero).attr('x2',xZero)
+      .attr('y1',-38).attr('y2',chartH+6);
+
+    /* NYS Avg label — top row, centered on zero */
+    g.append('text').attr('class','db-axis-label')
+      .attr('x',xZero).attr('y',-26)
+      .attr('text-anchor','middle').attr('font-weight',800).attr('fill','#3B2EA3')
+      .text('NYS Avg');
+
+    /* Direction annotations — second row, well separated from center */
+    g.append('text').attr('class','db-axis-label')
+      .attr('x', xZero-28).attr('y',-10)
+      .attr('text-anchor','end').attr('fill','#157A4A').attr('font-weight',700)
+      .text('◀ Below NYS');
+    g.append('text').attr('class','db-axis-label')
+      .attr('x', xZero+28).attr('y',-10)
+      .attr('text-anchor','start').attr('fill','#C0450A').attr('font-weight',700)
+      .text('Above NYS ▶');
+
+    /* Rows */
+    rows.forEach((row,ri)=>{
+      const rowY=ri*ROW_H;
+      const midY=rowY+ROW_H/2;
+      const startY=midY - BAR_BLOCK/2;
+
+      /* Region separator line */
+      if(ri>0) g.append('line')
+        .attr('x1',0).attr('x2',chartW)
+        .attr('y1',rowY).attr('y2',rowY)
+        .attr('stroke','#F0EEFF').attr('stroke-width',1);
+
+      /* Region label */
+      svg.append('text').attr('class','db-region-label')
+        .attr('x',LABEL_W-10).attr('y',TOP+midY)
+        .attr('text-anchor','end').attr('dominant-baseline','middle')
+        .attr('fill', RC[row.region])
+        .text(row.region.replace('New York City','NYC'));
+
+      /* Region color stripe */
+      svg.append('rect')
+        .attr('x', LABEL_W-5).attr('y', TOP+midY-BAR_BLOCK/2)
+        .attr('width',3).attr('height',BAR_BLOCK).attr('rx',2)
+        .attr('fill', RC[row.region]);
+
+      /* Bars for each active metric */
+      activeList.forEach((m,mi)=>{
+        const d=row.vals[m.key];
+        const barY=startY + mi*(BAR_H+BAR_GAP);
+        const barX=d.diff>=0 ? xZero : xScale(d.diff);
+        const barW=Math.abs(xScale(d.diff)-xZero);
+
+        /* "good" direction: for Normal, right=good; for Low/VLow, left=good */
+        const isGood = m.isGoodHigh ? d.diff>=0 : d.diff<=0;
+        const barColor= Math.abs(d.diff)<0.05 ? '#9CA3AF' : (isGood ? m.color : d3.color(m.color).darker(0.6).formatHex());
+
+        g.append('rect').attr('class','db-bar')
+          .attr('x',barX).attr('y',barY)
+          .attr('width',Math.max(2,barW)).attr('height',BAR_H)
+          .attr('rx',3).attr('fill',barColor)
+          .on('mousemove',function(event){
+            TIP.innerHTML=`
+              <div class="tn">${row.region}</div>
+              <div class="row"><span>Metric</span><span>${m.full}</span></div>
+              <div class="row"><span>Region Rate</span><span>${fmt(d.rate)}</span></div>
+              <div class="row"><span>NYS Average</span><span>${fmt(d.nys)}</span></div>
+              <div class="row"><span>Difference</span><span>${pp(d.diff)}</span></div>
+              <div class="row"><span>Direction</span><span>${isGood?'✓ Favorable':'✗ Unfavorable'}</span></div>
+              <div class="tr">${m.note}</div>`;
+            TIP.style.left=(event.clientX+16)+'px';
+            TIP.style.top=(event.clientY-14)+'px';
+            TIP.classList.add('on');
+          })
+          .on('mouseleave',()=>TIP.classList.remove('on'));
+
+        /* Value label on bar — only if bar wide enough */
+        if(barW>22){
+          const labelX = d.diff>=0 ? xZero+barW/2 : xZero-barW/2;
+          g.append('text').attr('class','db-val-label')
+            .attr('x',labelX).attr('y',barY+BAR_H/2)
+            .attr('text-anchor','middle').attr('dominant-baseline','middle')
+            .attr('fill','#fff').attr('font-size',8.5)
+            .text((d.diff>=0?'+':'')+d.diff.toFixed(2));
+        }
+
+        /* Metric dot legend on first region */
+        if(ri===0){
+          g.append('circle')
+            .attr('cx', xZero + (d.diff>=0 ? barW+10 : -barW-10))
+            .attr('cy', barY+BAR_H/2).attr('r',3)
+            .attr('fill',m.color);
+        }
+      });
+
+      /* Metric labels on right — REMOVED, shown in toggle row instead */
+    });
+
+    /* Footnote */
+    const foot=document.getElementById('divbarFoot');
+    if(foot) foot.textContent=`${yr} · deviation from NYS statewide average (percentage points) · each region shows ${activeList.length} metric${activeList.length>1?'s':''}`;
+  };
+})();
+
+
+/* ══════════════════
+   SANKEY DIAGRAM
+══════════════════ */
+function regionCategoryCounts(yr){
+  const regMap=byRegion(yr);
+  return REGIONS.map(reg=>{
+    const r=regMap[reg];
+    const lowOnly=Math.max(0, r.low - r.vlow);
+    return {
+      region:reg,
+      known:r.known,
+      norm:r.norm,
+      lowOnly,
+      vlow:r.vlow,
+      pN:pct(r.norm,r.known),
+      pL:pct(r.low,r.known),
+      pV:pct(r.vlow,r.known)
+    };
+  });
+}
+
+/* ── Performance band helpers ── */
+/* threshold: ±0.30 pp = Similar band */
+function getPerfBandKey(regionRate, nysRate, isGoodHigh){
+  const diff = regionRate - nysRate;
+  const THRESH = 0.30;
+  if(isGoodHigh){
+    if(diff >=  THRESH) return 'better';
+    if(diff <= -THRESH) return 'worse';
+    return 'similar';
+  } else {
+    if(diff <= -THRESH) return 'better';
+    if(diff >=  THRESH) return 'worse';
+    return 'similar';
+  }
+}
+
+function renderSankey(){
+  const svgEl=document.getElementById('sankeyDiagram');
+  if(!svgEl || typeof d3==='undefined') return;
+
+  const yr=+yrSel.value;
+  const rows=regionCategoryCounts(yr);
+  const sw=statewide(yr);
+
+  /* BW categories — Layer 0 (left) */
+  const nysNorm=sw.pN;
+  const nysLow=pct(sw.low, sw.known);
+  const nysVlow=sw.pV;
+
+  const BW_CATS=[
+    {key:'norm',    label:'Normal',    full:'Normal Birth Weight',   color:'#5B6FF5', nysRate:nysNorm,  isGoodHigh:true},
+    {key:'lowOnly', label:'Low',       full:'Low Birth Weight',      color:'#7C6FF2', nysRate:nysLow,   isGoodHigh:false},
+    {key:'vlow',    label:'Very Low',  full:'Very Low Birth Weight', color:'#9333EA', nysRate:nysVlow,  isGoodHigh:false}
+  ];
+
+  /* Performance bands — Layer 2 (right) */
+  const PERF=[
+    {key:'better',  label:'Better than NYS Avg', color:'#157A4A'},
+    {key:'similar', label:'Similar to NYS Avg',  color:'#4338CA'},
+    {key:'worse',   label:'Worse than NYS Avg',  color:'#C0450A'}
+  ];
+  const PERF_MAP=Object.fromEntries(PERF.map(p=>[p.key,p]));
+
+  /* ── Nodes ──
+     Layer 0: BW Categories (3)
+     Layer 1: Regions (5)
+     Layer 2: Performance Bands (3)            */
+  const nodes=[];
+  const nIdx={};
+  function addNode(id, label, color, layer, meta={}){
+    nIdx[id]=nodes.length;
+    nodes.push({id, label, color, layer, value:0, ...meta});
+  }
+  BW_CATS.forEach(c=> addNode('BW:'+c.key, c.label, c.color, 0, {full:c.full, bwKey:c.key}));
+  REGIONS.forEach(r=> addNode('R:'+r,  r.replace('New York City','NYC'), RC[r], 1, {regionKey:r}));
+  PERF.forEach(p=>    addNode('PF:'+p.key, p.label, p.color, 2, {perfKey:p.key}));
+
+  /* ── Links ── */
+  const links=[];
+
+  rows.forEach(row=>{
+    BW_CATS.forEach(cat=>{
+      const val=row[cat.key];
+      if(!val) return;
+
+      /* rate used for performance comparison */
+      const regRate = cat.key==='norm' ? row.pN : (cat.key==='lowOnly' ? row.pL : row.pV);
+      const perfKey = getPerfBandKey(regRate, cat.nysRate, cat.isGoodHigh);
+
+      /* BW → Region */
+      links.push({
+        source: nIdx['BW:'+cat.key],
+        target: nIdx['R:'+row.region],
+        value: val,
+        _bw: cat.full, _bwKey: cat.key, _region: row.region,
+        _rate: regRate, _nys: cat.nysRate, _perf: PERF_MAP[perfKey].label,
+        _perfKey: perfKey, _color: RC[row.region]   // color by region
+      });
+
+      /* Region → Performance Band */
+      links.push({
+        source: nIdx['R:'+row.region],
+        target: nIdx['PF:'+perfKey],
+        value: val,
+        _bw: cat.full, _bwKey: cat.key, _region: row.region,
+        _rate: regRate, _nys: cat.nysRate, _perf: PERF_MAP[perfKey].label,
+        _perfKey: perfKey, _color: RC[row.region]
+      });
+    });
+  });
+
+  /* ── Node values ── */
+  nodes.forEach(n=>{ n.value=0; });
+  links.forEach(lk=>{ nodes[lk.target].value+=lk.value; });
+  nodes.forEach((n,i)=>{
+    if(n.value===0) n.value=links.filter(l=>l.source===i).reduce((s,l)=>s+l.value,0);
+  });
+
+  /* ── Layout ── */
+  const SVG_W=820, SVG_H=460;
+  const pad={top:32, bottom:18, left:16, right:16};
+  const NODE_W=14, GAP=8;
+  const innerH=SVG_H-pad.top-pad.bottom;
+
+  const layerX=[
+    pad.left,
+    pad.left + (SVG_W-pad.left-pad.right)*0.36,
+    pad.left + (SVG_W-pad.left-pad.right)*0.72
+  ];
+
+  function layoutLayer(layerNodes){
+    const total=layerNodes.reduce((s,n)=>s+n.value,0)||1;
+    const totalGap=GAP*(layerNodes.length-1);
+    const usable=innerH-totalGap;
+    let y=pad.top;
+    layerNodes.forEach(n=>{
+      n.h=Math.max(6, usable*(n.value/total));
+      n.x=layerX[n.layer];
+      n.y=y;
+      y+=n.h+GAP;
+    });
+  }
+  [0,1,2].forEach(l=>layoutLayer(nodes.filter(n=>n.layer===l)));
+
+  /* ── Ribbon geometry ── */
+  /* For each node track how much of its height has been allocated on src side and tgt side */
+  const srcOff={}, tgtOff={};
+  nodes.forEach((_,i)=>{ srcOff[i]=0; tgtOff[i]=0; });
+
+  /* Process links layer-by-layer, within each source sorted by target to reduce crossings */
+  const sortedLinks=[...links].sort((a,b)=>{
+    const la=nodes[a.source].layer, lb=nodes[b.source].layer;
+    if(la!==lb) return la-lb;
+    if(a.source!==b.source) return a.source-b.source;
+    return a.target-b.target;
+  });
+
+  sortedLinks.forEach(lk=>{
+    const sn=nodes[lk.source], tn=nodes[lk.target];
+    const sTotal=sn.value||1, tTotal=tn.value||1;
+    const sH=sn.h*(lk.value/sTotal);
+    const tH=tn.h*(lk.value/tTotal);
+    lk._sy0=sn.y+srcOff[lk.source]; lk._sy1=lk._sy0+sH; srcOff[lk.source]+=sH;
+    lk._ty0=tn.y+tgtOff[lk.target]; lk._ty1=lk._ty0+tH; tgtOff[lk.target]+=tH;
+  });
+
+  /* SVG ribbon path — filled band (not stroke) for thicker visual like reference */
+  function ribbonPath(lk){
+    const sn=nodes[lk.source], tn=nodes[lk.target];
+    const x0=sn.x+NODE_W, x1=tn.x;
+    const cx=(x0+x1)/2;
+    const y0t=lk._sy0, y0b=lk._sy1, y1t=lk._ty0, y1b=lk._ty1;
+    return `M${x0},${y0t} C${cx},${y0t} ${cx},${y1t} ${x1},${y1t}
+            L${x1},${y1b} C${cx},${y1b} ${cx},${y0b} ${x0},${y0b} Z`;
+  }
+
+  /* ── Render ── */
+  const svg=d3.select(svgEl);
+  svg.selectAll('*').remove();
+  svg.attr('viewBox',`0 0 ${SVG_W} ${SVG_H}`);
+
+  /* Column headers */
+  const hdrs=[
+    {label:'Birth Weight Category', x:layerX[0]},
+    {label:'Region',                x:layerX[1]},
+    {label:'Performance Band',      x:layerX[2]}
+  ];
+  hdrs.forEach(h=>{
+    svg.append('text')
+      .attr('x', h.x+NODE_W/2).attr('y', pad.top-14)
+      .attr('text-anchor','middle')
+      .attr('font-family','Inter,sans-serif').attr('font-size',10).attr('font-weight',800)
+      .attr('fill','#6E6A86').attr('letter-spacing','0.07em')
+      .text(h.label.toUpperCase());
+  });
+
+  /* Ribbons */
+  svg.append('g').attr('class','sk-ribbons')
+    .selectAll('path')
+    .data(sortedLinks)
+    .join('path')
+    .attr('d', ribbonPath)
+    .attr('fill', lk=>lk._color)
+    .attr('fill-opacity', 0.38)
+    .attr('stroke', lk=>lk._color)
+    .attr('stroke-width', 0.4)
+    .attr('stroke-opacity', 0.5)
+    .style('cursor','pointer')
+    .on('mousemove', function(event, lk){
+      d3.select(this).attr('fill-opacity',0.70);
+      const sn=nodes[lk.source], tn=nodes[lk.target];
+      const row=rows.find(r=>r.region===lk._region)||{known:0};
+      const pShare=row.known ? pct(lk.value,row.known) : 0;
+      TIP.innerHTML=`
+        <div class="tn">${sn.label} → ${tn.label}</div>
+        <div class="row"><span>Region</span><span>${lk._region}</span></div>
+        <div class="row"><span>BW Category</span><span>${lk._bw}</span></div>
+        <div class="row"><span>Performance</span><span>${lk._perf}</span></div>
+        <div class="row"><span>Births</span><span>${lk.value.toLocaleString()}</span></div>
+        <div class="row"><span>% of Region</span><span>${fmt(pShare)}</span></div>
+        <div class="row"><span>Region Rate</span><span>${fmt(lk._rate)}</span></div>
+        <div class="row"><span>NYS Avg</span><span>${fmt(lk._nys)}</span></div>`;
+      TIP.style.left=(event.clientX+16)+'px';
+      TIP.style.top=(event.clientY-14)+'px';
+      TIP.classList.add('on');
+    })
+    .on('mouseleave', function(){
+      d3.select(this).attr('fill-opacity',0.38);
+      TIP.classList.remove('on');
+    });
+
+  /* Nodes */
+  const nodeG=svg.append('g').selectAll('g')
+    .data(nodes).join('g')
+    .attr('transform', n=>`translate(${n.x},${n.y})`);
+
+  nodeG.append('rect')
+    .attr('width', NODE_W)
+    .attr('height', n=>Math.max(4,n.h))
+    .attr('rx', 3)
+    .attr('fill', n=>n.color)
+    .attr('stroke','#fff').attr('stroke-width',1);
+
+  /* Node labels */
+  nodeG.append('text')
+    .attr('x', n=> n.layer===0 ? -6 : NODE_W+6)
+    .attr('y', n=> Math.max(4,n.h)/2)
+    .attr('dominant-baseline','middle')
+    .attr('text-anchor', n=> n.layer===0 ? 'end' : 'start')
+    .attr('font-family','Inter,sans-serif')
+    .attr('font-size', n=> n.layer===2 ? 9.5 : 11)
+    .attr('font-weight', 700)
+    .attr('fill','#2F2A8C')
+    .text(n=>n.label);
+
+  /* Node value sub-labels */
+  nodeG.append('text')
+    .attr('x', n=> n.layer===0 ? -6 : NODE_W+6)
+    .attr('y', n=> Math.max(4,n.h)/2+13)
+    .attr('dominant-baseline','middle')
+    .attr('text-anchor', n=> n.layer===0 ? 'end' : 'start')
+    .attr('font-family','Inter,sans-serif')
+    .attr('font-size', 9)
+    .attr('font-weight', 500)
+    .attr('fill','#6E6A86')
+    .text(n=> n.value>=1000 ? (n.value/1000).toFixed(1)+'K' : n.value.toLocaleString());
+
+  /* ── Sidebar: Regional Summary bars ── */
+  const barEl=document.getElementById('sankeyRegionBars');
+  if(barEl){
+    const maxKnown=Math.max(...rows.map(r=>r.known));
+    barEl.innerHTML=rows.map(r=>`
+      <div class="sankey-region-bar-row">
+        <div class="sankey-region-bar-label">
+          <span>${r.region.replace('New York City','NYC')}</span>
+          <span>${r.known.toLocaleString()}</span>
+        </div>
+        <div class="sankey-region-bar-bg">
+          <div class="sankey-region-bar-fill" style="width:${(r.known/maxKnown*100).toFixed(1)}%;background:${RC[r.region]}"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  /* Footnote */
+  const foot=document.getElementById('sankeyFootNote');
+  if(foot) foot.textContent=`${yr} · Birth weight category → Region → Performance band`;
+}
+
+
+
+/* Fixed regional county-shape maps renderer */
+function _regionMapMetricRows(yr, metric){
+  const regMap = byRegion(yr);
+  const sw = statewide(yr);
+  return REGIONS.map(reg=>{
+    const r=regMap[reg];
+    const pN=pct(r.norm,r.known), pL=pct(r.low,r.known), pV=pct(r.vlow,r.known);
+    const value={pN,pL,pV}[metric];
+    return {region:reg, known:r.known, norm:r.norm, low:r.low, vlow:r.vlow, value, diff:value-sw[metric]};
+  });
+}
+function _shadeRegionColor(baseHex, value, minValue, maxValue){
+  const range=maxValue-minValue || 1;
+  const t=(value-minValue)/range;
+  if(typeof blendHex === 'function') return blendHex('#F6F4FF', baseHex, 0.36 + t*0.58);
+  return baseHex;
+}
+async function _drawRegionalCountyShapeMap(svgId, metric, label){
+  const svgEl=document.getElementById(svgId);
+  if(!svgEl || typeof d3==='undefined' || typeof topojson==='undefined') return;
+
+  const yr=+yrSel.value;
+  let features;
+  try { features=await loadNYCountyFeatures(); }
+  catch(e) {
+    svgEl.innerHTML='<text x="180" y="130" text-anchor="middle" class="map-status">Map boundary file could not load.</text>';
+    return;
+  }
+
+  const rows=_regionMapMetricRows(yr, metric);
+  const rowByRegion=new Map(rows.map(d=>[d.region,d]));
+  const vals=rows.map(d=>d.value);
+  const mn=Math.min(...vals), mx=Math.max(...vals);
+  const dataMap=countyDataMapForYear(yr);
+
+  const svg=d3.select(svgEl);
+  svg.selectAll('*').remove();
+
+  const fc={type:'FeatureCollection',features};
+  const projection=d3.geoAlbers().rotate([76,0]).fitSize([330,225],fc);
+  const path=d3.geoPath(projection);
+  const g=svg.append('g').attr('transform','translate(12,12)');
+
+  g.selectAll('path')
+    .data(features)
+    .join('path')
+    .attr('class','regional-county-shape')
+    .attr('d',path)
+    .attr('fill',f=>{
+      const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+      const d=dataMap.get(county);
+      if(!d) return '#E8E4F8';
+      const rd=rowByRegion.get(d.region);
+      return rd ? _shadeRegionColor(RC[d.region], rd.value, mn, mx) : '#E8E4F8';
+    })
+    .on('mousemove',function(event,f){
+      const county=NY_FIPS_TO_COUNTY[String(f.id).padStart(5,'0')];
+      const d=dataMap.get(county);
+      if(!d) return;
+      const rd=rowByRegion.get(d.region);
+      const metricCount = metric==='pN' ? d.norm : (metric==='pL' ? d.low : d.vlow);
+      TIP.innerHTML=`
+        <div class="tn">${county} County</div>
+        <div class="row"><span>Region</span><span>${d.region}</span></div>
+        <div class="row"><span>Map Metric</span><span>${label}</span></div>
+        <div class="row"><span>Region Rate</span><span>${rd ? fmt(rd.value) : '—'}</span></div>
+        <div class="row"><span>Region Diff. vs NYS</span><span>${rd ? pp(rd.diff) : '—'}</span></div>
+        <div class="row"><span>County Metric Births</span><span>${metricCount.toLocaleString()}</span></div>
+        <div class="row"><span>County Known Births</span><span>${d.known.toLocaleString()}</span></div>
+        <div class="tr">County shape shown; color represents the county's region.</div>`;
+      TIP.style.left=(event.clientX+16)+'px';
+      TIP.style.top=(event.clientY-14)+'px';
+      TIP.classList.add('on');
+    })
+    .on('mouseleave',()=>TIP.classList.remove('on'));
+
+  svg.append('text')
+    .attr('x',12).attr('y',248)
+    .attr('class','region-map-caption')
+    .text(`${yr} · county shapes colored by region · darker region = higher ${label.toLowerCase()} rate`);
+}
+function renderFixedRegionalMaps(){
+  // regional maps replaced by Diverging Bar Chart
+}
+
+function renderAnalytics(){
+  const yr=+yrSel.value;
+  renderFixedRegionalMaps();
+  renderSankey();
+  renderDivergingBar();
+  renderMiniCountyMaps();
+  renderRegionalCards(yr);
+  renderRiskTable(yr);
+  renderChangeTables(yr);
+  renderKeyFindings(yr);
+}
+
+/* ══════════════════
+   RENDER
+══════════════════ */
+// Pre-compute trend data across all years
+const TREND_YEARS=ALL_YEARS.slice().sort((a,b)=>a-b);
+const TREND_N=TREND_YEARS.map(y=>statewide(y).pN);
+const TREND_L=TREND_YEARS.map(y=>statewide(y).pL);
+const TREND_V=TREND_YEARS.map(y=>statewide(y).pV);
+
+function render(){
+  const yr=+yrSel.value;
+  const prev=yr-1;
+  const rows=getRows(yr);
+  const sw=statewide(yr);
+  const regMap=byRegion(yr);
+  const metricTotals = {
+    n: sw.norm,
+    l: sw.low,
+    v: sw.vlow
+  };
+
+  // center values
+  document.getElementById('vn').textContent=fmt(sw.pN);
+  document.getElementById('vl').textContent=fmt(sw.pL);
+  document.getElementById('vv').textContent=fmt(sw.pV);
+
+  // YoY
+  function setYoy(id,cur,prev,higherIsBetter){
+    const el=document.getElementById(id);
+    if(!prev){ el.textContent='—'; el.className='yoy y-neu'; return; }
+    const d=cur-prev, up=d>=0;
+    const good=higherIsBetter?up:!up;
+    el.textContent=(up?'▲':'▼')+' '+Math.abs(d).toFixed(2)+'pp';
+    el.className='yoy '+(good?'y-good':'y-bad');
+  }
+  const hasPrev=ALL_YEARS.includes(prev);
+  const psw=hasPrev?statewide(prev):null;
+  setYoy('yn',sw.pN,psw?.pN,true);
+  setYoy('yl',sw.pL,psw?.pL,false);
+  setYoy('yv',sw.pV,psw?.pV,false);
+
+  // draw all three metrics
+  ['n','l','v'].forEach(m=>{
+    const getVal=m==='n'?d=>d[4]:m==='l'?d=>d[5]:d=>d[6];
+    const getRegVal=m==='n'?r=>r.norm:m==='l'?r=>r.low:r=>r.vlow;
+    const metricLabel=m==='n'?'Normal BW':m==='l'?'Low BW':'Very Low BW';
+
+    /* OUTER = County (shaded by region) */
+    const outerSegs=[];
+    REGIONS.forEach(reg=>{
+      const counties=rows.filter(r=>r[2]===reg);
+      // sort by metric pct descending so darker = higher rate
+      counties.sort((a,b)=>pct(getVal(b),b[3])-pct(getVal(a),a[3]));
+      const n=counties.length;
+      counties.forEach(([y,county,region,known,norm,low,vlow],i)=>{
+        const val=getVal([y,county,region,known,norm,low,vlow]);
+        const p=pct(val,known);
+        // tint: 0=full color, 0.55=very light
+        const t=n>1?0.42*(i/(n-1)):0.18;
+        outerSegs.push({
+          name: county,
+          level: 'County',
+          region: reg,
+          value: known,
+          known: known,
+          metricCount: val,
+          metricLabel: metricLabel,
+          pct: p,
+          shareKnown: pct(known, sw.known),
+          shareMetric: pct(val, metricTotals[m]),
+          color: lighten(RC[reg],t),
+          _start:0,_span:0,_mid:0
+        });
+      });
+    });
+
+    /* INNER = Region */
+    const innerSegs=REGIONS.map(reg=>{
+      const rd=regMap[reg];
+      if(!rd||!rd.known) return null;
+      const val=getRegVal(rd);
+      return {
+        name: reg,
+        level: 'Region',
+        region: reg,
+        value: rd.known,
+        known: rd.known,
+        metricCount: val,
+        metricLabel: metricLabel,
+        pct: pct(val,rd.known),
+        shareKnown: pct(rd.known, sw.known),
+        shareMetric: pct(val, metricTotals[m]),
+        color: RC[reg],
+        _start:0,_span:0,_mid:0
+      };
+    }).filter(Boolean);
+
+    const cvO=document.getElementById('o'+m);
+    const cvI=document.getElementById('i'+m);
+    cvO.getContext('2d').clearRect(0,0,SZ,SZ);
+    cvI.getContext('2d').clearRect(0,0,SZ,SZ);
+    drawRing(cvO.getContext('2d'),outerSegs,OR,Or);
+    drawRing(cvI.getContext('2d'),innerSegs,IR,Ir);
+    cvO._segs=outerSegs;
+    cvI._segs=innerSegs;
+
+    // attach hover (only once — use a flag)
+    if(!cvO._attached){
+      attach(cvO,cvI,metricLabel);
+      cvO._attached=true;
+    }
+  });
+
+  // trends
+  setTimeout(()=>{
+    renderTrends();
+  },40);
+
+  // analytic interpretation panels
+  renderAnalytics();
+}
+
+yrSel.addEventListener('change',render);
+document.getElementById('resetScope')?.addEventListener('click',()=>{selectedCounty=null;renderTrends();});
+render();
+window.addEventListener('resize',()=>{
+  renderTrends();
+});
+</script>
+</body>
+</html>
